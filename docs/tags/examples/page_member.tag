@@ -1,4 +1,4 @@
-<page_member>
+<page_element>
 
     <section-header title="Member"></section-header>
 
@@ -6,4 +6,4 @@
      dump(this.opts._route)
     </script>
 
-</page_member>
+</page_element>

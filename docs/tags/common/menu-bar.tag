@@ -2,7 +2,8 @@
     <aside class="menu">
         <p ref="brand"
            class="menu-label"
-           onclick={clickBrand}>
+            <!-- onclick={clickBrand} -->
+            >
             {opts.brand.label}
         </p>
         <ul class="menu-list">

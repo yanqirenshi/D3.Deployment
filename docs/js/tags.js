@@ -38,7 +38,7 @@ riot.tag2('markdown-preview', '', 'markdown-preview h1 { font-weight: bold; font
 
 });
 
-riot.tag2('menu-bar', '<aside class="menu"> <p ref="brand" class="menu-label" onclick="{clickBrand}"> {opts.brand.label} </p> <ul class="menu-list"> <li each="{opts.site.pages}"> <a class="{opts.site.active_page==code ? \'is-active\' : \'\'}" href="{\'#\' + code}"> {menu_label} </a> </li> </ul> </aside> <div class="move-page-menu hide" ref="move-panel"> <p each="{moves()}"> <a href="{href}">{label}</a> </p> </div>', 'menu-bar .move-page-menu { z-index: 666665; background: #ffffff; position: fixed; left: 55px; top: 0px; min-width: 111px; height: 100vh; box-shadow: 2px 0px 8px 0px #e0e0e0; padding: 22px 55px 22px 22px; } menu-bar .move-page-menu.hide { display: none; } menu-bar .move-page-menu > p { margin-bottom: 11px; } menu-bar > .menu { z-index: 666666; height: 100vh; width: 55px; padding: 11px 0px 11px 11px; position: fixed; left: 0px; top: 0px; background: #e198b4; } menu-bar .menu-label, menu-bar .menu-list a { padding: 0; width: 33px; height: 33px; text-align: center; margin-top: 8px; border-radius: 3px; background: none; color: #ffffff; font-weight: bold; padding-top: 7px; font-size: 14px; } menu-bar .menu-label,[data-is="menu-bar"] .menu-label{ background: #ffffff; color: #e198b4; } menu-bar .menu-label.open,[data-is="menu-bar"] .menu-label.open{ background: #ffffff; color: #e198b4; width: 44px; border-radius: 3px 0px 0px 3px; text-shadow: 0px 0px 1px #eee; padding-right: 11px; } menu-bar .menu-list a.is-active { width: 44px; padding-right: 11px; border-radius: 3px 0px 0px 3px; background: #ffffff; color: #333333; }', '', function(opts) {
+riot.tag2('menu-bar', '<aside class="menu"> <p ref="brand" class="menu-label"> {opts.brand.label} </p> <ul class="menu-list"> <li each="{opts.site.pages}"> <a class="{opts.site.active_page==code ? \'is-active\' : \'\'}" href="{\'#\' + code}"> {menu_label} </a> </li> </ul> </aside> <div class="move-page-menu hide" ref="move-panel"> <p each="{moves()}"> <a href="{href}">{label}</a> </p> </div>', 'menu-bar .move-page-menu { z-index: 666665; background: #ffffff; position: fixed; left: 55px; top: 0px; min-width: 111px; height: 100vh; box-shadow: 2px 0px 8px 0px #e0e0e0; padding: 22px 55px 22px 22px; } menu-bar .move-page-menu.hide { display: none; } menu-bar .move-page-menu > p { margin-bottom: 11px; } menu-bar > .menu { z-index: 666666; height: 100vh; width: 55px; padding: 11px 0px 11px 11px; position: fixed; left: 0px; top: 0px; background: #e198b4; } menu-bar .menu-label, menu-bar .menu-list a { padding: 0; width: 33px; height: 33px; text-align: center; margin-top: 8px; border-radius: 3px; background: none; color: #ffffff; font-weight: bold; padding-top: 7px; font-size: 14px; } menu-bar .menu-label,[data-is="menu-bar"] .menu-label{ background: #ffffff; color: #e198b4; } menu-bar .menu-label.open,[data-is="menu-bar"] .menu-label.open{ background: #ffffff; color: #e198b4; width: 44px; border-radius: 3px 0px 0px 3px; text-shadow: 0px 0px 1px #eee; padding-right: 11px; } menu-bar .menu-list a.is-active { width: 44px; padding-right: 11px; border-radius: 3px 0px 0px 3px; background: #ffffff; color: #333333; }', '', function(opts) {
      this.moves = () => {
          let moves = [
              { code: 'link-a', href: '', label: 'Link A' },
@@ -190,41 +190,23 @@ riot.tag2('section-list', '<table class="table is-bordered is-striped is-narrow 
 riot.tag2('sections-list', '<table class="table"> <tbody> <tr each="{opts.data}"> <td><a href="{hash}">{code}</a></td> <td>{tag}</td> </tr> </tbody> </table>', '', '', function(opts) {
 });
 
-riot.tag2('page_have-childs', '<section-header title="Page01"></section-header> <section-container title="セクション" data="{sections()}"> <sections-list data="{opts.data}"> </sections-list> </section-container>', '', '', function(opts) {
-     this.sections = () => {
-         let pages = STORE.get('site').pages;
-         let page = pages.find((d) => { return d.code=='have-child'; });
-
-         return page.children;
-     }
+riot.tag2('page_example', '<section-header title="Example"></section-header>', '', '', function(opts) {
 });
 
-riot.tag2('page_have-childs_page1', '<section-header-with-breadcrumb title="Child 1"></section-header-with-breadcrumb>', '', '', function(opts) {
-});
-
-riot.tag2('page_have-childs_page2', '<section-header-with-breadcrumb title="Child 2"></section-header-with-breadcrumb>', '', '', function(opts) {
-});
-
-riot.tag2('page_have-childs_page3', '<section-header-with-breadcrumb title="Child 3"></section-header-with-breadcrumb>', '', '', function(opts) {
+riot.tag2('page_element', '<section-header title="Member"></section-header>', '', '', function(opts) {
+     dump(this.opts._route)
 });
 
 riot.tag2('home_page', '<section-header title="D3.Deployment"></section-header>', '', '', function(opts) {
 });
 
-riot.tag2('page_member', '<section-header title="Member"></section-header>', '', '', function(opts) {
-     dump(this.opts._route)
-});
-
-riot.tag2('page_teams', '<section-header title="Teams"></section-header>', '', '', function(opts) {
-});
-
-riot.tag2('page_use-tabs', '<section-header title="Page02"></section-header> <div style="padding-left:55px;"> <page-tabs core="{page_tabs}" callback="{clickTab}"></page-tabs> </div> <div> <page_use-tabs_tab_readme class="hide"></page_use-tabs_tab_readme> <page_use-tabs_tab_tab1 class="hide"></page_use-tabs_tab_tab1> <page_use-tabs_tab_tab2 class="hide"></page_use-tabs_tab_tab2> <page_use-tabs_tab_tab3 class="hide"></page_use-tabs_tab_tab3> <page_use-tabs_tab_help class="hide"></page_use-tabs_tab_help> </div>', '', '', function(opts) {
+riot.tag2('page-usage', '<section-header title="Usage"></section-header> <div style="padding-left:55px;"> <page-tabs core="{page_tabs}" callback="{clickTab}"></page-tabs> </div> <div> <page-usage_tab-readme class="hide"></page-usage_tab-readme> <page-usage_tab-tab1 class="hide"></page-usage_tab-tab1> <page-usage_tab-tab2 class="hide"></page-usage_tab-tab2> <page-usage_tab-tab3 class="hide"></page-usage_tab-tab3> <page-usage_tab-help class="hide"></page-usage_tab-help> </div>', '', '', function(opts) {
      this.page_tabs = new PageTabs([
-         {code: 'readme', label: 'README', tag: 'page_use-tabs_tab_readme' },
-         {code: 'tab1',   label: 'TAB1',   tag: 'page_use-tabs_tab_tab1' },
-         {code: 'tab2',   label: 'TAB2',   tag: 'page_use-tabs_tab_tab2' },
-         {code: 'tab3',   label: 'TAB3',   tag: 'page_use-tabs_tab_tab3' },
-         {code: 'help',   label: 'HELP',   tag: 'page_use-tabs_tab_help' },
+         {code: 'readme', label: 'README', tag: 'page-usage_tab-readme' },
+         {code: 'tab1',   label: 'TAB1',   tag: 'page-usage_tab-tab1' },
+         {code: 'tab2',   label: 'TAB2',   tag: 'page-usage_tab-tab2' },
+         {code: 'tab3',   label: 'TAB3',   tag: 'page-usage_tab-tab3' },
+         {code: 'help',   label: 'HELP',   tag: 'page-usage_tab-help' },
      ]);
 
      this.on('mount', () => {
@@ -238,17 +220,17 @@ riot.tag2('page_use-tabs', '<section-header title="Page02"></section-header> <di
      };
 });
 
-riot.tag2('page_use-tabs_tab_help', '<section class="section"> <div class="container"> <h1 class="title">HELP</h1> <h2 class="subtitle"> </h2> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
+riot.tag2('page-usage_tab-help', '<section class="section"> <div class="container"> <h1 class="title">HELP</h1> <h2 class="subtitle"> </h2> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
 });
 
-riot.tag2('page_use-tabs_tab_readme', '<section class="section"> <div class="container"> <h1 class="title">README</h1> <h2 class="subtitle"> </h2> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
+riot.tag2('page-usage_tab-readme', '<section class="section"> <div class="container"> <h1 class="title">README</h1> <h2 class="subtitle"> </h2> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
 });
 
-riot.tag2('page_use-tabs_tab_tab1', '<section class="section"> <div class="container"> <h1 class="title">TAB1</h1> <h2 class="subtitle"> </h2> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
+riot.tag2('page-usage_tab-tab1', '<section class="section"> <div class="container"> <h1 class="title">TAB1</h1> <h2 class="subtitle"> </h2> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
 });
 
-riot.tag2('page_use-tabs_tab_tab2', '<section class="section"> <div class="container"> <h1 class="title">TAB2</h1> <h2 class="subtitle"> </h2> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
+riot.tag2('page-usage_tab-tab2', '<section class="section"> <div class="container"> <h1 class="title">TAB2</h1> <h2 class="subtitle"> </h2> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
 });
 
-riot.tag2('page_use-tabs_tab_tab3', '<section class="section"> <div class="container"> <h1 class="title">TAB3</h1> <h2 class="subtitle"> </h2> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
+riot.tag2('page-usage_tab-tab3', '<section class="section"> <div class="container"> <h1 class="title">TAB3</h1> <h2 class="subtitle"> </h2> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
 });

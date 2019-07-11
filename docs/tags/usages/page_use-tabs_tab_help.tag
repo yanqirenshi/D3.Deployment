@@ -1,4 +1,4 @@
-<page_use-tabs_tab_help>
+<page-usage_tab-help>
     <section class="section">
         <div class="container">
             <h1 class="title">HELP</h1>
@@ -8,4 +8,4 @@
             </div>
         </div>
     </section>
-</page_use-tabs_tab_help>
+</page-usage_tab-help>
