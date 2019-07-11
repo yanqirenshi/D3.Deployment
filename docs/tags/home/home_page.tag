@@ -1,5 +1,5 @@
 <home_page>
 
-    <section-header title="HOME"></section-header>
+    <section-header title="D3.Deployment"></section-header>
 
 </home_page>

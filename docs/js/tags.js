@@ -208,7 +208,7 @@ riot.tag2('page_have-childs_page2', '<section-header-with-breadcrumb title="Chil
 riot.tag2('page_have-childs_page3', '<section-header-with-breadcrumb title="Child 3"></section-header-with-breadcrumb>', '', '', function(opts) {
 });
 
-riot.tag2('home_page', '<section-header title="HOME"></section-header>', '', '', function(opts) {
+riot.tag2('home_page', '<section-header title="D3.Deployment"></section-header>', '', '', function(opts) {
 });
 
 riot.tag2('page_member', '<section-header title="Member"></section-header>', '', '', function(opts) {
