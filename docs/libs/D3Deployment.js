@@ -12,6 +12,7 @@ class D3DeploymentNode {
             border: null,
             children: [],
             _core: null,
+            _class: 'NODE',
         };
     };
     adjustBase (data) {
@@ -223,19 +224,10 @@ class D3DeploymentNode {
             data.size.h = rect.to.y - rect.from.y;
         }
     }
-}
-
-class D3DeploymentPort {
-    dataTemplate () {
-        return {
-            node:  null,
-            edge:  null,
-            _id:   null,
-            _core: null,
-        };
-    }
-    adjust (data, id) {
-    }
+    ///// ////////////////////////////////////////////////////////////////
+    /////   Draw
+    ///// ////////////////////////////////////////////////////////////////
+    draw () {}
 }
 
 class D3DeploymentEdge {
@@ -255,6 +247,7 @@ class D3DeploymentEdge {
 
             _id:       null,
             _core:     null,
+            _class:    'EDGE',
         };
     }
     adjust (data, id) {
@@ -271,6 +264,28 @@ class D3DeploymentEdge {
 
         return data;
     }
+    ///// ////////////////////////////////////////////////////////////////
+    /////   Draw
+    ///// ////////////////////////////////////////////////////////////////
+    draw () {}
+}
+
+class D3DeploymentPort {
+    dataTemplate () {
+        return {
+            node:   null,
+            edge:   null,
+            _id:    null,
+            _core:  null,
+            _class: 'PORT',
+        };
+    }
+    adjust (data, id) {
+    }
+    ///// ////////////////////////////////////////////////////////////////
+    /////   Draw
+    ///// ////////////////////////////////////////////////////////////////
+    draw () {}
 }
 
 class D3Deployment {
@@ -358,4 +373,33 @@ class D3Deployment {
     ///// ////////////////////////////////////////////////////////////////
     /////   Draw
     ///// ////////////////////////////////////////////////////////////////
+    elementDataList () {
+        return [].concat(
+            this._nodes.list,
+            this._edges.list,
+            this._ports.list
+        );
+    }
+    draw() {
+        //一覧を作成し、ソートする。
+        let list = this.elementDataList();
+
+        let node = new D3DeploymentNode();
+        let edge = new D3DeploymentEdge();
+        let port = new D3DeploymentPort();
+
+        //一件づつ描画する。
+        for (let data of list) {
+            if (data._class=='NODE')
+                node.draw(data);
+            else if (data._class=='EDGE')
+                node.draw(data);
+            else if (data._class=='PORT')
+                node.draw(data);
+            else {
+                console.war('なにこれ？ -------');
+                console.war(data);
+            }
+        }
+    }
 }
