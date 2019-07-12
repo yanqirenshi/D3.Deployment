@@ -68,7 +68,7 @@ class D3DeploymentNode {
     adjustBackground (data) {
         let background_core = data._core.background;
         let template = {
-                color: '#ffffff'
+            color: '#ffffff'
         };
 
         if (!background_core) {
@@ -88,9 +88,9 @@ class D3DeploymentNode {
     adjustBorder (data) {
         let border_core = data._core.border;
         let template = {
-                width: 1,
-                type: 'solid',
-                color: '#666666'
+            width: 1,
+            type: 'solid',
+            color: '#666666'
         };
 
         if (!border_core) {
@@ -225,22 +225,105 @@ class D3DeploymentNode {
     }
 }
 
+class D3DeploymentPort {
+    dataTemplate () {
+        return {
+            node:  null,
+            edge:  null,
+            _id:   null,
+            _core: null,
+        };
+    }
+    adjust (data, id) {
+    }
+}
+
+class D3DeploymentEdge {
+    dataTemplate () {
+        return {
+            from: {
+                id: null,
+                port: null,
+                node: null,
+            },
+
+            to: {
+                id: null,
+                port: null,
+                node: null,
+            },
+
+            _id:       null,
+            _core:     null,
+        };
+    }
+    adjust (data, id) {
+        let new_data = this.dataTemplate();
+
+        if (data._id)
+            new_data._id = data._id;
+
+        if (data.from_id)
+            new_data.from.id = data.from_id;
+
+        if (data.to_id)
+            new_data.to.id = data.to_id;
+
+        return data;
+    }
+}
+
 class D3Deployment {
     constructor () {
-        this._data = [];
+        this._nodes = { list: [], ht: {} };
+        this._edges = { list: [], ht: {} };
+        this._ports = { list: [], ht: {} };
     }
-    data (data) {
-        if (arguments.length==0)
-            return this._data;
+    data2pool (trees, pool) {
+        for (let tree of trees) {
+            let id = tree._id;
 
+            pool.ht[id] = tree;
+            pool.list.push(tree);
+
+            if (tree.children)
+                this.data2pool(tree.children, pool);
+        }
+    }
+    importNodes (nodes) {
         let node = new D3DeploymentNode();
 
-        this._data = (data || []).map((d) => {
+        let tmp = (nodes || []).map((d) => {
             return node.adjust(d);
         });
 
-        for (let data of this._data)
+        for (let data of tmp)
             node.fitting(data);
+
+        this.data2pool(tmp, this._nodes);
+    }
+    importEdges (edges) {
+        let edge = new D3DeploymentEdge();
+
+        let id = 1;
+        let tmp = (edges || []).map((d) => {
+            return edge.adjust(d, id++);
+        });
+
+        this.data2pool(tmp, this._edges);
+    }
+    makePorts (edges) {
+        // node を from, to へセット
+        // port を作成しながら from, to へセット
+    }
+    data (data) {
+        if (arguments.length==0)
+            return this._nodes.list;
+
+        this.importNodes(data.nodes);
+        this.importEdges(data.edges);
+
+        this.makePorts(this._edges.list);
 
         return this;
     }
