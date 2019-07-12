@@ -29,6 +29,44 @@ riot.tag2('app', '<menu-bar brand="{{label:\'RT\'}}" site="{site()}" moves="{[]}
          location.hash=STORE.get('site.active_page');
 });
 
+riot.tag2('page-classes', '<section-header title="Usage"></section-header> <div style="padding-left:55px;"> <page-tabs core="{page_tabs}" callback="{clickTab}"></page-tabs> </div> <div> <page-classes_tab-readme class="hide"></page-classes_tab-readme> <page-classes_tab-class4 class="hide"></page-classes_tab-class4> <page-classes_tab-class1 class="hide"></page-classes_tab-class1> <page-classes_tab-class2 class="hide"></page-classes_tab-class2> <page-classes_tab-class3 class="hide"></page-classes_tab-class3> </div>', '', '', function(opts) {
+     this.page_tabs = new PageTabs([
+         {code: 'readme', label: 'README',                  tag: 'page-classes_tab-readme' },
+         {code: 'class1', label: 'Class: D3Deployment',     tag: 'page-classes_tab-class4' },
+         {code: 'class2', label: 'Class: D3DeploymentNode', tag: 'page-classes_tab-class1' },
+         {code: 'class3', label: 'Class: D3DeploymentPort', tag: 'page-classes_tab-class2' },
+         {code: 'class4', label: 'Class: D3DeploymentEdge', tag: 'page-classes_tab-class3' },
+     ]);
+
+     this.on('mount', () => {
+         this.page_tabs.switchTab(this.tags)
+         this.update();
+     });
+
+     this.clickTab = (e, action, data) => {
+         if (this.page_tabs.switchTab(this.tags, data.code))
+             this.update();
+     };
+});
+
+riot.tag2('page-classes_tab-class1', '<section class="section"> <div class="container"> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
+});
+
+riot.tag2('page-classes_tab-class2', '<section class="section"> <div class="container"> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
+});
+
+riot.tag2('page-classes_tab-class3', '<section class="section"> <div class="container"> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
+});
+
+riot.tag2('page-classes_tab-class4', '<section class="section"> <div class="container"> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
+});
+
+riot.tag2('page-classes_tab-help', '<section class="section"> <div class="container"> <h1 class="title">HELP</h1> <h2 class="subtitle"> </h2> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
+});
+
+riot.tag2('page-classes_tab-readme', '<section class="section"> <div class="container"> <h1 class="title">README</h1> <h2 class="subtitle"> </h2> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
+});
+
 riot.tag2('markdown-preview', '', 'markdown-preview h1 { font-weight: bold; font-size: 20px; margin-top: 11px; margin-bottom: 6px; } markdown-preview h2 { font-weight: bold; font-size: 18px; margin-top: 8px; margin-bottom: 4px; } markdown-preview h3 { font-weight: bold; font-size: 16px; margin-top: 6px; margin-bottom: 3px; } markdown-preview h4 { font-weight: bold; font-size: 14px; margin-top: 6px; margin-bottom: 3px; } markdown-preview h5 { font-weight: bold; font-size: 12px; margin-bottom: 4px; } markdown-preview * { font-size: 12px; } markdown-preview table { border-collapse: collapse; } markdown-preview td { border: solid 0.6px #888888; padding: 2px 5px; } markdown-preview th { border: solid 0.6px #888888; padding: 2px 5px; background: #eeeeee; }', '', function(opts) {
      this.on('update', () => {
          this.root.innerHTML = this.opts.data;
@@ -262,37 +300,5 @@ riot.tag2('page_example', '<section class="section"> <div class="container"> <di
 riot.tag2('home_page', '<section-header title="D3.Deployment"></section-header>', '', '', function(opts) {
 });
 
-riot.tag2('page-usage', '<section-header title="Usage"></section-header> <div style="padding-left:55px;"> <page-tabs core="{page_tabs}" callback="{clickTab}"></page-tabs> </div> <div> <page-usage_tab-readme class="hide"></page-usage_tab-readme> <page-usage_tab-tab1 class="hide"></page-usage_tab-tab1> <page-usage_tab-tab2 class="hide"></page-usage_tab-tab2> <page-usage_tab-tab3 class="hide"></page-usage_tab-tab3> <page-usage_tab-help class="hide"></page-usage_tab-help> </div>', '', '', function(opts) {
-     this.page_tabs = new PageTabs([
-         {code: 'readme', label: 'README', tag: 'page-usage_tab-readme' },
-         {code: 'tab1',   label: 'TAB1',   tag: 'page-usage_tab-tab1' },
-         {code: 'tab2',   label: 'TAB2',   tag: 'page-usage_tab-tab2' },
-         {code: 'tab3',   label: 'TAB3',   tag: 'page-usage_tab-tab3' },
-         {code: 'help',   label: 'HELP',   tag: 'page-usage_tab-help' },
-     ]);
-
-     this.on('mount', () => {
-         this.page_tabs.switchTab(this.tags)
-         this.update();
-     });
-
-     this.clickTab = (e, action, data) => {
-         if (this.page_tabs.switchTab(this.tags, data.code))
-             this.update();
-     };
-});
-
-riot.tag2('page-usage_tab-help', '<section class="section"> <div class="container"> <h1 class="title">HELP</h1> <h2 class="subtitle"> </h2> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
-});
-
-riot.tag2('page-usage_tab-readme', '<section class="section"> <div class="container"> <h1 class="title">README</h1> <h2 class="subtitle"> </h2> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
-});
-
-riot.tag2('page-usage_tab-tab1', '<section class="section"> <div class="container"> <h1 class="title">TAB1</h1> <h2 class="subtitle"> </h2> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
-});
-
-riot.tag2('page-usage_tab-tab2', '<section class="section"> <div class="container"> <h1 class="title">TAB2</h1> <h2 class="subtitle"> </h2> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
-});
-
-riot.tag2('page-usage_tab-tab3', '<section class="section"> <div class="container"> <h1 class="title">TAB3</h1> <h2 class="subtitle"> </h2> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
+riot.tag2('page-usage', '<section-header title="Usage"></section-header> <section class="section"> <div class="container"> <h1 class="title"></h1> <h2 class="subtitle"></h2> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
 });

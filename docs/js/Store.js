@@ -32,6 +32,11 @@ class Store extends Vanilla_Redux_Store {
                 menu_label: '使',
                 tag: 'page-usage',
             },
+            {
+                code: "classes",
+                menu_label: '構',
+                tag: 'page-classes',
+            },
         ];
     }
     init () {
