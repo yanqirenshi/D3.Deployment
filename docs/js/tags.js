@@ -190,11 +190,61 @@ riot.tag2('section-list', '<table class="table is-bordered is-striped is-narrow 
 riot.tag2('sections-list', '<table class="table"> <tbody> <tr each="{opts.data}"> <td><a href="{hash}">{code}</a></td> <td>{tag}</td> </tr> </tbody> </table>', '', '', function(opts) {
 });
 
-riot.tag2('page_example', '<section-header title="Example"></section-header>', '', '', function(opts) {
-});
-
 riot.tag2('page_element', '<section-header title="Member"></section-header>', '', '', function(opts) {
      dump(this.opts._route)
+});
+
+riot.tag2('page_example', '<section class="section"> <div class="container"> <div class="svg-container"> <svg id="scketchbook"></svg> </div> </div> </section>', 'page_example .svg-container { width:100%; height:555px; padding:22px; border: 1px solid #fafafa; background: #fcfcfc; }', '', function(opts) {
+     this.core = new D3Deployment ().data([
+         {
+             _id: 1,
+             type: '',
+             position: { x: 100, y: 100 },
+             size: { w: 200, h: 300 },
+             background: { color: '#ffffff' },
+             border: { width: 1, type: 'solid', color: '#666666' },
+             children: [
+             ]
+         },
+         {
+             _id: 2,
+             type: '',
+             position: { x: 500, y: 100 },
+             size: { w: 300, h: 300 },
+             background: { color: '#ffffff' },
+             border: { width: 1, type: 'solid', color: '#666666' },
+         },
+         {
+             _id: 3,
+             type: '',
+             position: { x: 1000, y: 100 },
+             size: { w: 500, h: 600 },
+             background: { color: '#ffffff' },
+             border: { width: 1, type: 'solid', color: '#666666' },
+             children: [
+                 {
+                     _id: 10,
+                     type: '',
+                     position: { x: 100, y: 100 },
+                     size: { w: 100, h: 200 },
+                     background: { color: '#eeeeee' },
+                     border: { width: 1, type: 'solid', color: '#666666' },
+                 },
+             ]
+         }
+     ]);
+
+     this.sketcher = null;
+     this.on('mount', () => {
+         try {
+
+             this.sketcher = new ExampleSketcher('page_example svg#scketchbook');
+             this.sketcher.drawExample(this.core.data());
+
+         } catch (e) {
+             console.log(e);
+         }
+     });
 });
 
 riot.tag2('home_page', '<section-header title="D3.Deployment"></section-header>', '', '', function(opts) {
