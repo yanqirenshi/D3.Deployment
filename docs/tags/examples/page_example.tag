@@ -15,9 +15,9 @@
          nodes: [
              {
                  _id: 1,
-                 type: '',
+                 type: 'NODE',
                  position: { x: 100, y: 100 },
-                 size: { w: 200, h: 300 },
+                 size: { w: 300, h: 300 },
                  background: { color: '#ffffff' },
                  border: { width: 1, type: 'solid', color: '#666666' },
                  children: [
@@ -25,7 +25,7 @@
              },
              {
                  _id: 2,
-                 type: '',
+                 type: 'NODE',
                  position: { x: 500, y: 100 },
                  size: { w: 300, h: 300 },
                  background: { color: '#ffffff' },
@@ -33,7 +33,7 @@
              },
              {
                  _id: 3,
-                 type: '',
+                 type: 'NODE',
                  position: { x: 1000, y: 100 },
                  size: { w: 500, h: 600 },
                  background: { color: '#ffffff' },
@@ -41,10 +41,10 @@
                  children: [
                      {
                          _id: 10,
-                         type: '',
+                         type: 'COMPONENT',
                          position: { x: 100, y: 100 },
-                         size: { w: 100, h: 200 },
-                         background: { color: '#eeeeee' },
+                         size: { w: 300, h: 200 },
+                         background: { color: '#ffffff' },
                          border: { width: 1, type: 'solid', color: '#666666' },
                      },
                  ]

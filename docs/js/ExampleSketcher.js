@@ -71,6 +71,9 @@ class ExampleSketcher extends DefaultSketcher {
         };
     }
     drawExample (core) {
+        // TODO: ちょっと強引かなぁ。
+        new D3DeploymentNode().addFilterShadow(this._d3svg._svg);
+
         let place = this.getBase('forground');
 
         let elements = core.flatten();

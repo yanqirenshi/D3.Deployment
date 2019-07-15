@@ -1,16 +1,23 @@
+class D3DeploymentMarkers {
+    addMarkerComponent (svg) {
+    }
+    addMarkerFile (svg) {
+    }
+}
+
 class D3DeploymentNode {
     ///// ////////////////////////////////////////////////////////////////
     /////   Adjust
     ///// ////////////////////////////////////////////////////////////////
     dataTemplate () {
         return {
-            _id: null,
             type: '',
             position: null,   // See Mthod: adjustPosition
             size:     null,   // See Metho: adjustSize
             background: null, // See Metho: adjustBackground,
             border: null,
             children: [],
+            _id: null,
             _core: null,
             _class: 'NODE',
         };
@@ -21,7 +28,7 @@ class D3DeploymentNode {
         if (data._core._id || data._core._id==0)
             data._id = data._core._id;
 
-        if (data.type)
+        if (data._core.type)
             data.type = data._core.type;
     }
     adjustSize (data) {
@@ -225,16 +232,41 @@ class D3DeploymentNode {
         }
     }
     ///// ////////////////////////////////////////////////////////////////
+    /////   Filter
+    ///// ////////////////////////////////////////////////////////////////
+    addFilterShadow (svg) {
+        var filter = svg.append("defs")
+            .append("filter")
+            .attr("id", "drop-shadow")
+            .attr("height", "130%");
+
+        var feGaussianBlur = filter.append("feGaussianBlur")
+            .attr("in", "SourceAlpha")
+            .attr("stdDeviation", 5)
+            .attr("result", "blur");
+
+        filter.append("feOffset")
+            .attr("in", "blur")
+            .attr("dx", 5)
+            .attr("dy", 5)
+            .attr("result", "offsetBlur");
+
+        var feMerge = filter.append("feMerge");
+
+        feMerge
+            .append("feMergeNode")
+            .attr("in", "offsetBlur");
+        feMerge
+            .append("feMergeNode")
+            .attr("in", "SourceGraphic");
+    }
+    ///// ////////////////////////////////////////////////////////////////
     /////   Draw
     ///// ////////////////////////////////////////////////////////////////
-    draw (place, data) {
-        place.selectAll('rect.sample')
-            .data([data], (d) => { return d._id; })
-            .enter()
+    drawBody (groups) {
+        groups
             .append('rect')
-            .attr('class', 'sample')
-            .attr('x', (d) => { return d.position.x;})
-            .attr('y', (d) => { return d.position.y;})
+            .attr('class', 'node-body')
             .attr('width', (d) => { return d.size.w;})
             .attr('height', (d) => { return d.size.h;})
             .attr('rx', (d) => { return d.border && d.border.r || 0;})
@@ -243,8 +275,113 @@ class D3DeploymentNode {
                 return d.background.color;
             })
             .attr('stroke', (d) => { return d.border.color; })
-            .attr('stroke-width', (d) => { return d.border.width; });
+            .attr('stroke-width', (d) => { return d.border.width; })
+            .style("filter", (d) => {
+                return (d.type=='NODE') ? 'url(#drop-shadow)' : '';
+            });
+    }
+    drawLabel (groups) {
+        groups
+            .append('text')
+            .attr('class', 'node-label')
+            .attr('x',  (d) => { return 30;})
+            .attr('y', (d) => { return 30;})
+            .text("テキストを表示できます")
+        ;
+    }
+    drawIcon (groups) {
+        let icon_groups = groups
+            .append('g')
+            .attr('class', 'icon-group')
+            .attr("transform", (d) => {
+                return "translate(" +
+                    (d.size.w - 24 - 20) + "," +
+                    15 +
+                    ")";
+            });
 
+        icon_groups
+            .append('rect')
+            .attr('class', 'node-body')
+             .attr('width', (d) => { return 18;})
+             .attr('height', (d) => { return 24;})
+             .attr('x', (d) => { return 6;})
+             .attr('y', (d) => { return 0;})
+             .attr('fill', (d) => {
+                 return '#fff';
+             })
+             .attr('stroke', (d) => { return '#333'; })
+             .attr('stroke-width', (d) => { return 1; });
+
+        icon_groups
+            .append('rect')
+            .attr('class', 'node-body')
+             .attr('width', (d) => { return 12;})
+             .attr('height', (d) => { return 6;})
+             .attr('x', (d) => { return 0;})
+             .attr('y', (d) => { return 3;})
+             .attr('fill', (d) => {
+                 return '#fff';
+             })
+             .attr('stroke', (d) => { return '#333'; })
+             .attr('stroke-width', (d) => { return 1; });
+
+        icon_groups
+            .append('rect')
+            .attr('class', 'node-body')
+             .attr('width', (d) => { return 12;})
+             .attr('height', (d) => { return 6;})
+             .attr('x', (d) => { return 0;})
+             .attr('y', (d) => { return 15;})
+             .attr('fill', (d) => {
+                 return '#fff';
+             })
+             .attr('stroke', (d) => { return '#333'; })
+             .attr('stroke-width', (d) => { return 1; });
+    }
+    drawComponent (place, data) {
+        let groups = place.selectAll('g.node')
+            .data([data], (d) => { return d._id; })
+            .enter()
+            .append('g')
+            .attr('class', 'node')
+            .attr("transform", (d) => {
+                return "translate(" +
+                    d.position.x + "," +
+                    d.position.y +
+                    ")";
+            });
+
+        this.drawBody(groups, data);
+        this.drawIcon(groups, data);
+        this.drawLabel(groups, data);
+    }
+    drawNode (place, data) {
+        let groups = place.selectAll('g.node')
+            .data([data], (d) => { return d._id; })
+            .enter()
+            .append('g')
+            .attr('class', 'node')
+            .attr("transform", (d) => {
+                return "translate(" +
+                    d.position.x + "," +
+                    d.position.y +
+                    ")";
+            });
+
+        this.drawBody(groups, data);
+        this.drawLabel(groups, data);
+    }
+    draw (place, data) {
+        if (data.type=='NODE') {
+            this.drawNode(place, data);
+            return;
+        }
+
+        if (data.type=='COMPONENT') {
+            this.drawComponent(place, data);
+            return;
+        }
     }
 }
 
@@ -399,7 +536,6 @@ class D3Deployment {
         let nodes = this._nodes.ht;
 
         for (let edge of edges){
-            dump(edge.from.id, edge.to.id);
             let node_from = nodes[edge.from.id];
             let node_to   = nodes[edge.to.id];
 

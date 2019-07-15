@@ -12,6 +12,7 @@ class D3DeploymentNode {
             border: null,
             children: [],
             _core: null,
+            _class: 'NODE',
         };
     };
     adjustBase (data) {
@@ -223,18 +224,98 @@ class D3DeploymentNode {
             data.size.h = rect.to.y - rect.from.y;
         }
     }
-}
-
-class D3DeploymentPort {
-    dataTemplate () {
-        return {
-            node:  null,
-            edge:  null,
-            _id:   null,
-            _core: null,
-        };
+    ///// ////////////////////////////////////////////////////////////////
+    /////   Draw
+    ///// ////////////////////////////////////////////////////////////////
+    drawBody (groups) {
+        groups
+            .append('rect')
+            .attr('class', 'node-body')
+             .attr('width', (d) => { return d.size.w;})
+             .attr('height', (d) => { return d.size.h;})
+             .attr('rx', (d) => { return d.border && d.border.r || 0;})
+             .attr('ry', (d) => { return d.border && d.border.r || 0;})
+             .attr('fill', (d) => {
+                 return d.background.color;
+             })
+             .attr('stroke', (d) => { return d.border.color; })
+             .attr('stroke-width', (d) => { return d.border.width; });
     }
-    adjust (data, id) {
+    drawLabel (groups) {
+        groups
+            .append('text')
+            .attr('class', 'node-label')
+            .attr('x',  (d) => { return 30;})
+            .attr('y', (d) => { return 30;})
+            .text("テキストを表示できます")
+        ;
+    }
+    drawIcon (groups) {
+        let icon_groups = groups
+            .append('g')
+            .attr('class', 'icon-group')
+            .attr("transform", (d) => {
+                return "translate(" +
+                    (d.size.w - 24 - 20) + "," +
+                    15 +
+                    ")";
+            });
+
+        icon_groups
+            .append('rect')
+            .attr('class', 'node-body')
+             .attr('width', (d) => { return 18;})
+             .attr('height', (d) => { return 24;})
+             .attr('x', (d) => { return 6;})
+             .attr('y', (d) => { return 0;})
+             .attr('fill', (d) => {
+                 return '#fff';
+             })
+             .attr('stroke', (d) => { return '#333'; })
+             .attr('stroke-width', (d) => { return 1; });
+
+        icon_groups
+            .append('rect')
+            .attr('class', 'node-body')
+             .attr('width', (d) => { return 12;})
+             .attr('height', (d) => { return 6;})
+             .attr('x', (d) => { return 0;})
+             .attr('y', (d) => { return 3;})
+             .attr('fill', (d) => {
+                 return '#fff';
+             })
+             .attr('stroke', (d) => { return '#333'; })
+             .attr('stroke-width', (d) => { return 1; });
+
+        icon_groups
+            .append('rect')
+            .attr('class', 'node-body')
+             .attr('width', (d) => { return 12;})
+             .attr('height', (d) => { return 6;})
+             .attr('x', (d) => { return 0;})
+             .attr('y', (d) => { return 15;})
+             .attr('fill', (d) => {
+                 return '#fff';
+             })
+             .attr('stroke', (d) => { return '#333'; })
+             .attr('stroke-width', (d) => { return 1; });
+    }
+    draw (place, data) {
+        let groups = place.selectAll('g.node')
+            .data([data], (d) => { return d._id; })
+            .enter()
+            .append('g')
+            .attr('class', 'node')
+            .attr("transform", (d) => {
+                return "translate(" +
+                    d.position.x + "," +
+                    d.position.y +
+                    ")";
+            });
+
+        this.drawBody(groups);
+        this.drawIcon(groups);
+        this.drawLabel(groups);
     }
 }
 
@@ -245,19 +326,22 @@ class D3DeploymentEdge {
                 id: null,
                 port: null,
                 node: null,
+                position: { x:0, y:0 },
             },
 
             to: {
                 id: null,
                 port: null,
                 node: null,
+                position: { x:0, y:0 },
             },
 
             _id:       null,
             _core:     null,
+            _class:    'EDGE',
         };
     }
-    adjust (data, id) {
+    adjust (data) {
         let new_data = this.dataTemplate();
 
         if (data._id)
@@ -269,7 +353,65 @@ class D3DeploymentEdge {
         if (data.to_id)
             new_data.to.id = data.to_id;
 
+        return new_data;
+    }
+    ///// ////////////////////////////////////////////////////////////////
+    /////   Draw
+    ///// ////////////////////////////////////////////////////////////////
+    draw (place, data) {
+        place.selectAll('line.edge')
+            .data([data], (d) => { return d._id; })
+            .enter()
+            .append('line')
+            .attr('class', 'edge')
+            .attr("x1", (d) => { return d.from.position.x;})
+            .attr("y1", (d) => { return d.from.position.y;})
+            .attr("x2", (d) => { return d.to.position.x;})
+            .attr("y2", (d) => { return d.to.position.y;})
+            .style('fill',   (d) => { return '#fff';})
+            .style("stroke", (d) => { return '#888';})
+            .attr("stroke-width", 1);
+    }
+}
+
+class D3DeploymentPort {
+    dataTemplate () {
+        return {
+            node:   null,
+            edge:   null,
+            _id:    null,
+            _core:  null,
+            _class: 'PORT',
+        };
+    }
+    adjust (data) {
+        let tmp = this.dataTemplate();
+
+        tmp._core = data;
+
         return data;
+    }
+    ///// ////////////////////////////////////////////////////////////////
+    /////   Draw
+    ///// ////////////////////////////////////////////////////////////////
+    draw (place, data) {
+        place.selectAll('circle.port')
+            .data([data], (d) => { return d._id; })
+            .enter()
+            .append('circle')
+            .attr('class', 'port')
+            .attr('cx', (d) => { return d.position.x;})
+            .attr('cy', (d) => { return d.position.y;})
+            .attr('r',  (d) => { return 10;})
+            .style('fill',  (d) => { return '#fff';})
+            .style("stroke", d => { return '#888';});
+    }
+}
+
+class D3DeploymentMarkers {
+    addMarkerComponent (svg) {
+    }
+    addMarkerFile (svg) {
     }
 }
 
@@ -278,6 +420,8 @@ class D3Deployment {
         this._nodes = { list: [], ht: {} };
         this._edges = { list: [], ht: {} };
         this._ports = { list: [], ht: {} };
+
+        this.id_counter = 1;
     }
     data2pool (trees, pool) {
         for (let tree of trees) {
@@ -289,6 +433,8 @@ class D3Deployment {
             if (tree.children)
                 this.data2pool(tree.children, pool);
         }
+
+        return pool;
     }
     importNodes (nodes) {
         let node = new D3DeploymentNode();
@@ -300,32 +446,102 @@ class D3Deployment {
         for (let data of tmp)
             node.fitting(data);
 
-        this.data2pool(tmp, this._nodes);
+        return this.data2pool(tmp, this._nodes);
     }
     importEdges (edges) {
         let edge = new D3DeploymentEdge();
-
         let id = 1;
+
         let tmp = (edges || []).map((d) => {
+            d._id = this.id_counter++;
             return edge.adjust(d, id++);
         });
 
-        this.data2pool(tmp, this._edges);
+        return this.data2pool(tmp, this._edges);
+    }
+    makePort (type, node, edge) {
+        let port = new D3DeploymentPort().adjust({
+            node:   node,
+            edge:   edge,
+            _id:    this.id_counter++,
+            _class: 'PORT',
+            _type:  type,
+        });
+
+        this._ports.list.push(port);
+        this._ports.ht[port._id] = port;
+
+        return port;
     }
     makePorts (edges) {
-        // node を from, to へセット
-        // port を作成しながら from, to へセット
+        let nodes = this._nodes.ht;
+
+        for (let edge of edges){
+            dump(edge.from.id, edge.to.id);
+            let node_from = nodes[edge.from.id];
+            let node_to   = nodes[edge.to.id];
+
+            edge.from.node = node_from;
+            edge.to.node   = node_to;
+
+            edge.from.port = this.makePort('FROM', edge.from.node, edge);
+            edge.to.port   = this.makePort('TO',   edge.to.node,   edge);
+        }
+    }
+    fittingPorts () {
+        for (let port of this._ports.list) {
+            let port_type = port._type;
+            let node_pos  = port.node.position;
+            let node_size = port.node.size;
+
+            if (port_type=='FROM') {
+                port.position = {
+                    x: node_pos.x + node_size.w + 20,
+                    y: node_pos.y + node_size.h / 2,
+                };
+            }
+
+            if (port_type=='TO') {
+                port.position = {
+                    x: node_pos.x - 20,
+                    y: node_pos.y + node_size.h / 2,
+                };
+            }
+        }
     }
     data (data) {
         if (arguments.length==0)
             return this._nodes.list;
 
-        this.importNodes(data.nodes);
-        this.importEdges(data.edges);
+        let x = this.importNodes(data.nodes);
+        let y = this.importEdges(data.edges);
 
         this.makePorts(this._edges.list);
 
+        this.fittingPorts();
+
+        // fitting Edges
+        for (let edge of this._edges.list) {
+            edge.from.position = {
+                x: edge.from.port.position.x,
+                y: edge.from.port.position.y,
+            };
+
+            edge.to.position = {
+                x: edge.to.port.position.x,
+                y: edge.to.port.position.y,
+            };
+        }
+
         return this;
+    }
+    elementDataList () {
+
+        return [].concat(
+            this._nodes.list,
+            this._edges.list,
+            this._ports.list
+        );
     }
     ///// ////////////////////////////////////////////////////////////////
     /////   Flatten
@@ -341,7 +557,9 @@ class D3Deployment {
 
         return out.concat(children);
     }
-    flatten (data) {
+    flatten () {
+        let data = this._nodes.list;
+
         if (!data)
             return [];
 
@@ -351,11 +569,50 @@ class D3Deployment {
             return acc.concat(this.flattenCore(val, lev));
         }, []);
 
+        // port に level を設定
+        for (let port of this._ports.list) {
+            port._level = port.node._level;
+            out.push(port);
+        }
+
+        // edge に level を設定
+        for (let edge of this._edges.list) {
+            if (edge.from._level > edge.to._level)
+                edge._level = edge.from._level - 1;
+            else
+                edge._level = edge.to._level - 1;
+
+            out.push(edge);
+        }
+
+        // ソートして返す
         return out.sort((a, b) => {
-            return (a.level < b.lebel) ? -1 : 1;
+            return (a._level < b._level) ? -1 : 1;
         });
     }
     ///// ////////////////////////////////////////////////////////////////
     /////   Draw
     ///// ////////////////////////////////////////////////////////////////
+    draw() {
+        //一覧を作成し、ソートする。
+        let list = this.elementDataList();
+
+        let node = new D3DeploymentNode();
+        let edge = new D3DeploymentEdge();
+        let port = new D3DeploymentPort();
+
+        //一件づつ描画する。
+        for (let data of list) {
+            if (data._class=='NODE')
+                node.draw(data);
+            else if (data._class=='EDGE')
+                node.draw(data);
+            else if (data._class=='PORT')
+                node.draw(data);
+            else {
+                console.war('なにこれ？ -------');
+                console.war(data);
+            }
+        }
+    }
 }
