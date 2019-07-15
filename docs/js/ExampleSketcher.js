@@ -18,8 +18,8 @@ class Camera {
         return {
             look: {
                 at: {
-                    x: Math.floor(size.w / 2),
-                    y: Math.floor(size.h / 2),
+                    x: Math.floor(size.w / 2) * -1,
+                    y: Math.floor(size.h / 2) * -1,
                 },
             },
             scale: 2.0,
@@ -44,48 +44,17 @@ class ExampleSketcher extends DefaultSketcher {
                 y: camera.look.at.y,
                 scale: camera.scale,
             });
-
-            this.painter = {
-                NODE: new D3DeploymentNode(),
-                EDGE: new D3DeploymentEdge(),
-                PORT: new D3DeploymentPort(),
-            };
         } catch (e) {
             console.warn(e);
         }
     }
-    exampleData () {
-        return {
-            x: 0,
-            y: 0,
-            w: 222,
-            h: 333,
-            r: 8,
-            stroke: {
-                color: '#333333',
-                width: 1,
-            },
-            background: {
-                color: '#fff'
-            }
-        };
-    }
     drawExample (core) {
-        // TODO: ちょっと強引かなぁ。
-        new D3DeploymentNode().addFilterShadow(this._d3svg._svg);
+        let d3Deployment = new D3Deployment();
+
+        core.init(this._d3svg._svg);
 
         let place = this.getBase('forground');
 
-        let elements = core.flatten();
-        for (let element of elements)
-            this.draw(place, element);
+        core.draw(place);
     };
-    draw (place, element) {
-        let painter = this.painter[element._class];
-
-        if (!painter)
-            return;
-
-        painter.draw(place, element);
-    }
 }

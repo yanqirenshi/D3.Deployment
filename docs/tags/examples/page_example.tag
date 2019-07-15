@@ -16,7 +16,11 @@
              {
                  _id: 1,
                  type: 'NODE',
-                 position: { x: 100, y: 100 },
+                 label: {
+                     contents: 'XXXXXXXX',
+                     position: { x: 20, y: 20 },
+                 },
+                 position: { x: 100 - 900, y: 100 - 500},
                  size: { w: 300, h: 300 },
                  background: { color: '#ffffff' },
                  border: { width: 1, type: 'solid', color: '#666666' },
@@ -25,22 +29,34 @@
              },
              {
                  _id: 2,
+                 label: {
+                     contents: 'YYYYYYYY',
+                     position: { x: 20, y: 20 },
+                 },
                  type: 'NODE',
-                 position: { x: 500, y: 100 },
+                 position: { x: 500 - 900, y: 100 - 500 },
                  size: { w: 300, h: 300 },
                  background: { color: '#ffffff' },
                  border: { width: 1, type: 'solid', color: '#666666' },
              },
              {
                  _id: 3,
+                 label: {
+                     contents: 'ZZZZZZZZ',
+                     position: { x: 20, y: 20 },
+                 },
                  type: 'NODE',
-                 position: { x: 1000, y: 100 },
+                 position: { x: 1000 - 900, y: 100 - 500 },
                  size: { w: 500, h: 600 },
                  background: { color: '#ffffff' },
                  border: { width: 1, type: 'solid', color: '#666666' },
                  children: [
                      {
                          _id: 10,
+                         label: {
+                             contents: 'aaaaaaaa',
+                             position: { x: 20, y: 20 },
+                         },
                          type: 'COMPONENT',
                          position: { x: 100, y: 100 },
                          size: { w: 300, h: 200 },

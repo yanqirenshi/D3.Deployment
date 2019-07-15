@@ -12,6 +12,10 @@ class D3DeploymentNode {
     dataTemplate () {
         return {
             type: '',
+            label: {
+                contents: '',
+                position: { x: 20, y: 20 },
+            },
             position: null,   // See Mthod: adjustPosition
             size:     null,   // See Metho: adjustSize
             background: null, // See Metho: adjustBackground,
@@ -30,6 +34,18 @@ class D3DeploymentNode {
 
         if (data._core.type)
             data.type = data._core.type;
+    }
+    adjustLabel (data) {
+        let core = data._core;
+
+        if (!core.label)
+            return;
+
+        if (core.label.contents)
+            data.label.contents = core.label.contents;
+
+        if (core.label.position)
+            data.label.position = core.label.position;
     }
     adjustSize (data) {
         let size_core = data._core.size;
@@ -150,6 +166,7 @@ class D3DeploymentNode {
             });
 
         this.adjustBase(new_data);
+        this.adjustLabel(new_data);
         this.adjustSize(new_data);
         this.adjustPosition(new_data);
         this.adjustBackground(new_data);
@@ -284,9 +301,15 @@ class D3DeploymentNode {
         groups
             .append('text')
             .attr('class', 'node-label')
-            .attr('x',  (d) => { return 30;})
-            .attr('y', (d) => { return 30;})
-            .text("テキストを表示できます")
+            .attr('x',  (d) => {
+                return d.label.position.x;
+            })
+            .attr('y', (d) => {
+                return d.label.position.y;
+            })
+            .text((d) => {
+                return d.label.contents;
+            })
         ;
     }
     drawIcon (groups) {
@@ -481,6 +504,17 @@ class D3Deployment {
         this._ports = { list: [], ht: {} };
 
         this.id_counter = 1;
+
+        this._painter = {
+            NODE: new D3DeploymentNode(),
+            EDGE: new D3DeploymentEdge(),
+            PORT: new D3DeploymentPort(),
+        };
+    }
+    init (svg) {
+        new D3DeploymentNode().addFilterShadow(svg);
+
+        return this;
     }
     data2pool (trees, pool) {
         for (let tree of trees) {
@@ -651,26 +685,23 @@ class D3Deployment {
     ///// ////////////////////////////////////////////////////////////////
     /////   Draw
     ///// ////////////////////////////////////////////////////////////////
-    draw() {
-        //一覧を作成し、ソートする。
-        let list = this.elementDataList();
+    painter(element_class) {
+        let painter = this._painter[element_class];
 
-        let node = new D3DeploymentNode();
-        let edge = new D3DeploymentEdge();
-        let port = new D3DeploymentPort();
+        return painter || null;
+    }
+    drawElement (place, element) {
+        let painter = this.painter(element._class);
 
-        //一件づつ描画する。
-        for (let data of list) {
-            if (data._class=='NODE')
-                node.draw(data);
-            else if (data._class=='EDGE')
-                node.draw(data);
-            else if (data._class=='PORT')
-                node.draw(data);
-            else {
-                console.war('なにこれ？ -------');
-                console.war(data);
-            }
-        }
+        if (!painter)
+            return;
+
+        painter.draw(place, element);
+    }
+    draw(place) {
+        let elements = this.flatten();
+
+        for (let element of elements)
+            this.drawElement(place, element);
     }
 }
