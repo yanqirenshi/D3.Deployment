@@ -11,7 +11,7 @@
     </section>
 
     <script>
-     this.core = new D3Deployment ().data({
+     this.core = new D3Deployment().data({
          nodes: [
              {
                  _id: 1,
@@ -69,7 +69,7 @@
          try {
 
              this.sketcher = new ExampleSketcher('page_example svg#scketchbook');
-             this.sketcher.drawExample(this.core.data());
+             this.sketcher.drawExample(this.core);
 
          } catch (e) {
              console.log(e);

@@ -227,7 +227,25 @@ class D3DeploymentNode {
     ///// ////////////////////////////////////////////////////////////////
     /////   Draw
     ///// ////////////////////////////////////////////////////////////////
-    draw () {}
+    draw (place, data) {
+        place.selectAll('rect.sample')
+            .data([data], (d) => { return d._id; })
+            .enter()
+            .append('rect')
+            .attr('class', 'sample')
+            .attr('x', (d) => { return d.position.x;})
+            .attr('y', (d) => { return d.position.y;})
+            .attr('width', (d) => { return d.size.w;})
+            .attr('height', (d) => { return d.size.h;})
+            .attr('rx', (d) => { return d.border && d.border.r || 0;})
+            .attr('ry', (d) => { return d.border && d.border.r || 0;})
+            .attr('fill', (d) => {
+                return d.background.color;
+            })
+            .attr('stroke', (d) => { return d.border.color; })
+            .attr('stroke-width', (d) => { return d.border.width; });
+
+    }
 }
 
 class D3DeploymentEdge {
@@ -237,12 +255,14 @@ class D3DeploymentEdge {
                 id: null,
                 port: null,
                 node: null,
+                position: { x:0, y:0 },
             },
 
             to: {
                 id: null,
                 port: null,
                 node: null,
+                position: { x:0, y:0 },
             },
 
             _id:       null,
@@ -250,7 +270,7 @@ class D3DeploymentEdge {
             _class:    'EDGE',
         };
     }
-    adjust (data, id) {
+    adjust (data) {
         let new_data = this.dataTemplate();
 
         if (data._id)
@@ -262,12 +282,25 @@ class D3DeploymentEdge {
         if (data.to_id)
             new_data.to.id = data.to_id;
 
-        return data;
+        return new_data;
     }
     ///// ////////////////////////////////////////////////////////////////
     /////   Draw
     ///// ////////////////////////////////////////////////////////////////
-    draw () {}
+    draw (place, data) {
+        place.selectAll('line.edge')
+            .data([data], (d) => { return d._id; })
+            .enter()
+            .append('line')
+            .attr('class', 'edge')
+            .attr("x1", (d) => { return d.from.position.x;})
+            .attr("y1", (d) => { return d.from.position.y;})
+            .attr("x2", (d) => { return d.to.position.x;})
+            .attr("y2", (d) => { return d.to.position.y;})
+            .style('fill',   (d) => { return '#fff';})
+            .style("stroke", (d) => { return '#888';})
+            .attr("stroke-width", 1);
+    }
 }
 
 class D3DeploymentPort {
@@ -280,12 +313,28 @@ class D3DeploymentPort {
             _class: 'PORT',
         };
     }
-    adjust (data, id) {
+    adjust (data) {
+        let tmp = this.dataTemplate();
+
+        tmp._core = data;
+
+        return data;
     }
     ///// ////////////////////////////////////////////////////////////////
     /////   Draw
     ///// ////////////////////////////////////////////////////////////////
-    draw () {}
+    draw (place, data) {
+        place.selectAll('circle.port')
+            .data([data], (d) => { return d._id; })
+            .enter()
+            .append('circle')
+            .attr('class', 'port')
+            .attr('cx', (d) => { return d.position.x;})
+            .attr('cy', (d) => { return d.position.y;})
+            .attr('r',  (d) => { return 10;})
+            .style('fill',  (d) => { return '#fff';})
+            .style("stroke", d => { return '#888';});
+    }
 }
 
 class D3Deployment {
@@ -293,6 +342,8 @@ class D3Deployment {
         this._nodes = { list: [], ht: {} };
         this._edges = { list: [], ht: {} };
         this._ports = { list: [], ht: {} };
+
+        this.id_counter = 1;
     }
     data2pool (trees, pool) {
         for (let tree of trees) {
@@ -304,6 +355,8 @@ class D3Deployment {
             if (tree.children)
                 this.data2pool(tree.children, pool);
         }
+
+        return pool;
     }
     importNodes (nodes) {
         let node = new D3DeploymentNode();
@@ -315,32 +368,102 @@ class D3Deployment {
         for (let data of tmp)
             node.fitting(data);
 
-        this.data2pool(tmp, this._nodes);
+        return this.data2pool(tmp, this._nodes);
     }
     importEdges (edges) {
         let edge = new D3DeploymentEdge();
-
         let id = 1;
+
         let tmp = (edges || []).map((d) => {
+            d._id = this.id_counter++;
             return edge.adjust(d, id++);
         });
 
-        this.data2pool(tmp, this._edges);
+        return this.data2pool(tmp, this._edges);
+    }
+    makePort (type, node, edge) {
+        let port = new D3DeploymentPort().adjust({
+            node:   node,
+            edge:   edge,
+            _id:    this.id_counter++,
+            _class: 'PORT',
+            _type:  type,
+        });
+
+        this._ports.list.push(port);
+        this._ports.ht[port._id] = port;
+
+        return port;
     }
     makePorts (edges) {
-        // node を from, to へセット
-        // port を作成しながら from, to へセット
+        let nodes = this._nodes.ht;
+
+        for (let edge of edges){
+            dump(edge.from.id, edge.to.id);
+            let node_from = nodes[edge.from.id];
+            let node_to   = nodes[edge.to.id];
+
+            edge.from.node = node_from;
+            edge.to.node   = node_to;
+
+            edge.from.port = this.makePort('FROM', edge.from.node, edge);
+            edge.to.port   = this.makePort('TO',   edge.to.node,   edge);
+        }
+    }
+    fittingPorts () {
+        for (let port of this._ports.list) {
+            let port_type = port._type;
+            let node_pos  = port.node.position;
+            let node_size = port.node.size;
+
+            if (port_type=='FROM') {
+                port.position = {
+                    x: node_pos.x + node_size.w + 20,
+                    y: node_pos.y + node_size.h / 2,
+                };
+            }
+
+            if (port_type=='TO') {
+                port.position = {
+                    x: node_pos.x - 20,
+                    y: node_pos.y + node_size.h / 2,
+                };
+            }
+        }
     }
     data (data) {
         if (arguments.length==0)
             return this._nodes.list;
 
-        this.importNodes(data.nodes);
-        this.importEdges(data.edges);
+        let x = this.importNodes(data.nodes);
+        let y = this.importEdges(data.edges);
 
         this.makePorts(this._edges.list);
 
+        this.fittingPorts();
+
+        // fitting Edges
+        for (let edge of this._edges.list) {
+            edge.from.position = {
+                x: edge.from.port.position.x,
+                y: edge.from.port.position.y,
+            };
+
+            edge.to.position = {
+                x: edge.to.port.position.x,
+                y: edge.to.port.position.y,
+            };
+        }
+
         return this;
+    }
+    elementDataList () {
+
+        return [].concat(
+            this._nodes.list,
+            this._edges.list,
+            this._ports.list
+        );
     }
     ///// ////////////////////////////////////////////////////////////////
     /////   Flatten
@@ -356,7 +479,9 @@ class D3Deployment {
 
         return out.concat(children);
     }
-    flatten (data) {
+    flatten () {
+        let data = this._nodes.list;
+
         if (!data)
             return [];
 
@@ -366,20 +491,30 @@ class D3Deployment {
             return acc.concat(this.flattenCore(val, lev));
         }, []);
 
+        // port に level を設定
+        for (let port of this._ports.list) {
+            port._level = port.node._level;
+            out.push(port);
+        }
+
+        // edge に level を設定
+        for (let edge of this._edges.list) {
+            if (edge.from._level > edge.to._level)
+                edge._level = edge.from._level - 1;
+            else
+                edge._level = edge.to._level - 1;
+
+            out.push(edge);
+        }
+
+        // ソートして返す
         return out.sort((a, b) => {
-            return (a.level < b.lebel) ? -1 : 1;
+            return (a._level < b._level) ? -1 : 1;
         });
     }
     ///// ////////////////////////////////////////////////////////////////
     /////   Draw
     ///// ////////////////////////////////////////////////////////////////
-    elementDataList () {
-        return [].concat(
-            this._nodes.list,
-            this._edges.list,
-            this._ports.list
-        );
-    }
     draw() {
         //一覧を作成し、ソートする。
         let list = this.elementDataList();

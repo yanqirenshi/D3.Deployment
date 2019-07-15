@@ -233,7 +233,7 @@ riot.tag2('page_element', '<section-header title="Member"></section-header>', ''
 });
 
 riot.tag2('page_example', '<section class="section"> <div class="container"> <div class="svg-container"> <svg id="scketchbook"></svg> </div> </div> </section>', 'page_example .svg-container { width:100%; height:555px; padding:22px; border: 1px solid #fafafa; background: #fcfcfc; }', '', function(opts) {
-     this.core = new D3Deployment ().data({
+     this.core = new D3Deployment().data({
          nodes: [
              {
                  _id: 1,
@@ -289,7 +289,7 @@ riot.tag2('page_example', '<section class="section"> <div class="container"> <di
          try {
 
              this.sketcher = new ExampleSketcher('page_example svg#scketchbook');
-             this.sketcher.drawExample(this.core.data());
+             this.sketcher.drawExample(this.core);
 
          } catch (e) {
              console.log(e);

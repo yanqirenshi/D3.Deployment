@@ -44,6 +44,12 @@ class ExampleSketcher extends DefaultSketcher {
                 y: camera.look.at.y,
                 scale: camera.scale,
             });
+
+            this.painter = {
+                NODE: new D3DeploymentNode(),
+                EDGE: new D3DeploymentEdge(),
+                PORT: new D3DeploymentPort(),
+            };
         } catch (e) {
             console.warn(e);
         }
@@ -64,32 +70,19 @@ class ExampleSketcher extends DefaultSketcher {
             }
         };
     }
-    drawExample (data) {
+    drawExample (core) {
         let place = this.getBase('forground');
 
-        this.data(new D3Deployment().flatten(data))
-            .sizing()
-            .positioning()
-            .draw(place);
+        let elements = core.flatten();
+        for (let element of elements)
+            this.draw(place, element);
     };
-    draw (place) {
-        let data = this._data;
+    draw (place, element) {
+        let painter = this.painter[element._class];
 
-        place.selectAll('rect.sample')
-            .data(data, (d) => { return d._id; })
-            .enter()
-            .append('rect')
-            .attr('class', 'sample')
-            .attr('x', (d) => { return d.position.x;})
-            .attr('y', (d) => { return d.position.y;})
-            .attr('width', (d) => { return d.size.w;})
-            .attr('height', (d) => { return d.size.h;})
-            .attr('rx', (d) => { return d.border && d.border.r || 0;})
-            .attr('ry', (d) => { return d.border && d.border.r || 0;})
-            .attr('fill', (d) => {
-                return d.background.color;
-            })
-            .attr('stroke', (d) => { return d.border.color; })
-            .attr('stroke-width', (d) => { return d.border.width; });
+        if (!painter)
+            return;
+
+        painter.draw(place, element);
     }
 }
