@@ -5,7 +5,140 @@ class D3DeploymentMarkers {
     }
 }
 
+class D3DeploymentCalculator {
+    deg2rad (degree) {
+        return degree * ( Math.PI / 180 );
+    }
+    isCorss(A, B, C, D) {
+        // 二つの線分の交差チェック
+        // https://www.hiramine.com/programming/graphics/2d_segmentintersection.html
+        let ACx = C.x - A.x;
+        let ACy = C.y - A.y;
+        let BUNBO = (B.x - A.x) * (D.y - C.y) - (B.y - A.y) * (D.x - C.x);
+
+        if (BUNBO==0)
+            return false;
+
+        let r = ((D.y - C.y) * ACx - (D.x - C.x) * ACy) / BUNBO;
+        let s = ((B.y - A.y) * ACx - (B.x - A.x) * ACy) / BUNBO;
+
+        return ((0 <= r && r <= 1) && (0 <= s && s <= 1));
+    }
+    // 2直線の交点を求める。(具)
+    getCrossPointCore (line, line_port, port) {
+        let out = { x:0, y:0 };
+
+        let A = line.from;
+        let B = line.to;
+        let C = line_port.from;
+        let D = line_port.to;
+
+        let bunbo = (B.y - A.y) * (D.x - C.x) - (B.x - A.x) * (D.y - C.y);
+
+        if (!this.isCorss(A, B, C, D))
+            return null;
+
+        // 二つの線分の交点を算出する。
+        // http://mf-atelier.sakura.ne.jp/mf-atelier/modules/tips/program/algorithm/a1.html
+        let d1, d2;
+
+        d1 = (C.y * D.x) - (C.x * D.y);
+        d2 = (A.y * B.x) - (A.x * B.y);
+
+        out.x = (d1 * (B.x - A.x) - d2 * (D.x - C.x)) / bunbo;
+        out.y = (d1 * (B.y - A.y) - d2 * (D.y - C.y)) / bunbo;
+
+        return out;
+    }
+    // 2直線の交点を求める。
+    getCrossPoint (lines, line_port, port) {
+        for (let line of lines) {
+            let point = this.getCrossPointCore(line, line_port, port);
+
+            if (point)
+                return point;
+        }
+        return null;
+    }
+    getPortLineFrom (node) {
+        return {
+            x: Math.floor(node.size.w / 2) + node.position.x ,
+            y: Math.floor(node.size.h / 2) + node.position.y
+        };
+    }
+    getPortLineLength (node) {
+        let max_length = Math.floor(Math.sqrt((node.size.w * node.size.w) + (node.size.h * node.size.h)));
+
+        return 0.8 * max_length;
+    }
+    makePortLine (port, port_pos, node) {
+        let out = {
+            from: {x:0, y:0},
+            to:   {x:0, y:0},
+        };
+
+        let from = this.getPortLineFrom(node);
+        out.from.x = from.x;
+        out.from.y = from.y;
+
+        let x = 0;
+        let y = this.getPortLineLength(node);
+        let degree = (port_pos || 90) % 360;
+
+        let radian = this.deg2rad(degree);
+        let cos = Math.cos(radian);
+        let sin = Math.sin(radian);
+
+        out.to.x = Math.floor(x * cos - y * sin);
+        out.to.y = Math.floor(x * sin + y * cos);
+
+        out.to.x += out.from.x;
+        out.to.y += out.from.y;
+
+        port._from = out.from;
+        port._to   = out.to;
+
+        return out;
+    }
+    positioningPort (port, port_pos, node) {
+        let lines_entity = new D3DeploymentNode().getFourSides(node);
+        let line_port    = this.makePortLine(port, port_pos, node);
+
+        let point        = this.getCrossPoint(lines_entity, line_port, port);
+
+        if (!point)
+            point = {x:0, y:0};
+
+        return point;
+    }
+}
+
 class D3DeploymentNode {
+    ///// ////////////////////////////////////////////////////////////////
+    /////   Utility
+    ///// ////////////////////////////////////////////////////////////////
+    getFourSides  (data) {
+        let port_r = 4;
+        let margin =  4 + port_r;
+
+        let x = data.position.x;
+        let y = data.position.y;
+
+        let w = data.size.w;
+        let h = data.size.h;
+
+        let top_left     = { x: x -     margin, y: y -     margin};
+        let top_right    = { x: x + w + margin, y: y -     margin};
+        let bottom_rigth = { x: x + w + margin, y: y + h + margin};
+        let bottom_left  = { x: x -     margin, y: y + h + margin};
+
+        return [
+            { from: top_left,     to: top_right    },
+            { from: top_right,    to: bottom_rigth },
+            { from: bottom_rigth, to: bottom_left  },
+            { from: bottom_left,  to: top_left     },
+        ];
+    }
     ///// ////////////////////////////////////////////////////////////////
     /////   Adjust
     ///// ////////////////////////////////////////////////////////////////
@@ -433,6 +566,8 @@ class D3DeploymentEdge {
     adjust (data) {
         let new_data = this.dataTemplate();
 
+        new_data._core = data;
+
         if (data._id)
             new_data._id = data._id;
 
@@ -510,6 +645,8 @@ class D3Deployment {
             EDGE: new D3DeploymentEdge(),
             PORT: new D3DeploymentPort(),
         };
+
+        this.calculator = new D3DeploymentCalculator();
     }
     init (svg) {
         new D3DeploymentNode().addFilterShadow(svg);
@@ -586,19 +723,44 @@ class D3Deployment {
             let node_pos  = port.node.position;
             let node_size = port.node.size;
 
-            if (port_type=='FROM') {
-                port.position = {
-                    x: node_pos.x + node_size.w + 20,
-                    y: node_pos.y + node_size.h / 2,
-                };
-            }
+            let port_pos;
+            if (port._type=='FROM')
+                port_pos = port.edge._core.from_position;
+            else
+                port_pos = port.edge._core.to_position;
 
-            if (port_type=='TO') {
-                port.position = {
-                    x: node_pos.x - 20,
-                    y: node_pos.y + node_size.h / 2,
-                };
-            }
+            let position = this.calculator.positioningPort(port,
+                                                           port_pos,
+                                                           port.node);
+
+            port.position = position;
+
+            // if (port_type=='FROM') {
+            //     port.position = {
+            //         x: node_pos.x + node_size.w + 20,
+            //         y: node_pos.y + node_size.h / 2,
+            //     };
+            // }
+
+            // if (port_type=='TO') {
+            //     port.position = {
+            //         x: node_pos.x - 20,
+            //         y: node_pos.y + node_size.h / 2,
+            //     };
+            // }
+        }
+    }
+    fittingEdges () {
+        for (let edge of this._edges.list) {
+            edge.from.position = {
+                x: edge.from.port.position.x,
+                y: edge.from.port.position.y,
+            };
+
+            edge.to.position = {
+                x: edge.to.port.position.x,
+                y: edge.to.port.position.y,
+            };
         }
     }
     data (data) {
@@ -611,19 +773,7 @@ class D3Deployment {
         this.makePorts(this._edges.list);
 
         this.fittingPorts();
-
-        // fitting Edges
-        for (let edge of this._edges.list) {
-            edge.from.position = {
-                x: edge.from.port.position.x,
-                y: edge.from.port.position.y,
-            };
-
-            edge.to.position = {
-                x: edge.to.port.position.x,
-                y: edge.to.port.position.y,
-            };
-        }
+        this.fittingEdges();
 
         return this;
     }

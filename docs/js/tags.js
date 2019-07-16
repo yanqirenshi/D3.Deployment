@@ -290,12 +290,12 @@ riot.tag2('page_example', '<section class="section"> <div class="container"> <di
          ],
          edges: [
              {
-                 from_id: 2,
-                 to_id: 10,
+                 from_id:  2, from_position:  90 + 90 + 90,
+                 to_id:   10, to_position: 90,
              },
              {
-                 from_id: 1,
-                 to_id: 3,
+                 from_id:  1, from_position:  90 + 90 + 90,
+                 to_id:    3, to_position: 90,
              },
          ]
      });
