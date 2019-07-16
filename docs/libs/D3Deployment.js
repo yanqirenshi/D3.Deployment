@@ -594,7 +594,8 @@ class D3DeploymentEdge {
             .attr("y2", (d) => { return d.to.position.y;})
             .style('fill',   (d) => { return '#fff';})
             .style("stroke", (d) => { return '#888';})
-            .attr("stroke-width", 1);
+            .attr("stroke-width", 1)
+            .attr('marker-end', "url(#edge-arrow)");
     }
 }
 
@@ -650,6 +651,21 @@ class D3Deployment {
     }
     init (svg) {
         new D3DeploymentNode().addFilterShadow(svg);
+
+        var marker = svg
+            .append("defs") // TODO: さがせよ
+            .append("marker")
+            .attr('id', "edge-arrow")
+            .attr('refX', 0)
+            .attr('refY', 10)
+            .attr('markerWidth', 20)
+            .attr('markerHeight', 20)
+            .attr('orient', "auto");
+
+        // 矢印の形をpathで定義します。
+        marker.append("path")
+            .attr('d', "M 0,0 V 20 L20,10 Z")
+            .attr('fill', "#333");
 
         return this;
     }
