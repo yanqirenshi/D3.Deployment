@@ -459,41 +459,41 @@ class D3DeploymentNode {
         icon_groups
             .append('rect')
             .attr('class', 'node-body')
-             .attr('width', (d) => { return 18;})
-             .attr('height', (d) => { return 24;})
-             .attr('x', (d) => { return 6;})
-             .attr('y', (d) => { return 0;})
-             .attr('fill', (d) => {
-                 return '#fff';
-             })
-             .attr('stroke', (d) => { return '#333'; })
-             .attr('stroke-width', (d) => { return 1; });
+            .attr('width', (d) => { return 18;})
+            .attr('height', (d) => { return 24;})
+            .attr('x', (d) => { return 6;})
+            .attr('y', (d) => { return 0;})
+            .attr('fill', (d) => {
+                return '#fff';
+            })
+            .attr('stroke', (d) => { return '#333'; })
+            .attr('stroke-width', (d) => { return 1; });
 
         icon_groups
             .append('rect')
             .attr('class', 'node-body')
-             .attr('width', (d) => { return 12;})
-             .attr('height', (d) => { return 6;})
-             .attr('x', (d) => { return 0;})
-             .attr('y', (d) => { return 3;})
-             .attr('fill', (d) => {
-                 return '#fff';
-             })
-             .attr('stroke', (d) => { return '#333'; })
-             .attr('stroke-width', (d) => { return 1; });
+            .attr('width', (d) => { return 12;})
+            .attr('height', (d) => { return 6;})
+            .attr('x', (d) => { return 0;})
+            .attr('y', (d) => { return 3;})
+            .attr('fill', (d) => {
+                return '#fff';
+            })
+            .attr('stroke', (d) => { return '#333'; })
+            .attr('stroke-width', (d) => { return 1; });
 
         icon_groups
             .append('rect')
             .attr('class', 'node-body')
-             .attr('width', (d) => { return 12;})
-             .attr('height', (d) => { return 6;})
-             .attr('x', (d) => { return 0;})
-             .attr('y', (d) => { return 15;})
-             .attr('fill', (d) => {
-                 return '#fff';
-             })
-             .attr('stroke', (d) => { return '#333'; })
-             .attr('stroke-width', (d) => { return 1; });
+            .attr('width', (d) => { return 12;})
+            .attr('height', (d) => { return 6;})
+            .attr('x', (d) => { return 0;})
+            .attr('y', (d) => { return 15;})
+            .attr('fill', (d) => {
+                return '#fff';
+            })
+            .attr('stroke', (d) => { return '#333'; })
+            .attr('stroke-width', (d) => { return 1; });
     }
     drawComponent (place, data) {
         let groups = place.selectAll('g.node')
@@ -506,7 +506,8 @@ class D3DeploymentNode {
                     d.position.x + "," +
                     d.position.y +
                     ")";
-            });
+            })
+            .attr('level',  (d) => { return d._level;});
 
         this.drawBody(groups, data);
         this.drawIcon(groups, data);
@@ -523,7 +524,8 @@ class D3DeploymentNode {
                     d.position.x + "," +
                     d.position.y +
                     ")";
-            });
+            })
+            .attr('level',  (d) => { return d._level;});
 
         this.drawBody(groups, data);
         this.drawLabel(groups, data);
@@ -571,11 +573,11 @@ class D3DeploymentEdge {
         if (data._id)
             new_data._id = data._id;
 
-        if (data.from_id)
-            new_data.from.id = data.from_id;
+        if (data.from._id)
+            new_data.from.id = data.from._id;
 
-        if (data.to_id)
-            new_data.to.id = data.to_id;
+        if (data.to._id)
+            new_data.to.id = data.to._id;
 
         return new_data;
     }
@@ -583,19 +585,37 @@ class D3DeploymentEdge {
     /////   Draw
     ///// ////////////////////////////////////////////////////////////////
     draw (place, data) {
-        place.selectAll('line.edge')
-            .data([data], (d) => { return d._id; })
-            .enter()
-            .append('line')
-            .attr('class', 'edge')
-            .attr("x1", (d) => { return d.from.position.x;})
-            .attr("y1", (d) => { return d.from.position.y;})
-            .attr("x2", (d) => { return d.to.position.x;})
-            .attr("y2", (d) => { return d.to.position.y;})
+        let lineData = [
+            {
+                "x": data.from.position.x,
+                "y": data.from.position.y,
+            },
+            {
+                "x": data.to.position.x,
+                "y": data.to.position.y
+            },
+        ];
+
+        let lineFunction = d3.line()
+            .x(function(d) { return d.x; })
+            .y(function(d) { return d.y; });
+
+        let path = place
+            .append("path")
+            .datum(lineData)
+            .attr("fill", "none")
+            .attr("d", lineFunction)
+            .attr('marker-end', "url(#edge-arrow)")
+            .style("stroke-width", 1.5)
             .style('fill',   (d) => { return '#fff';})
-            .style("stroke", (d) => { return '#888';})
-            .attr("stroke-width", 1)
-            .attr('marker-end', "url(#edge-arrow)");
+            .style("stroke", (d) => { return '#888';});
+
+
+        var len = path.node().getTotalLength();
+        var t = len - (6 + 6 + 10);
+        path
+            .attr('stroke-dasharray', "0 " + 6 + " " + t + " " + 6)
+            .attr( 'stroke-dashoffset', 0);
     }
 }
 
@@ -627,7 +647,8 @@ class D3DeploymentPort {
             .attr('class', 'port')
             .attr('cx', (d) => { return d.position.x;})
             .attr('cy', (d) => { return d.position.y;})
-            .attr('r',  (d) => { return 10;})
+            .attr('r',  (d) => { return 6;})
+            .attr('level',  (d) => { return d._level;})
             .style('fill',  (d) => { return '#fff';})
             .style("stroke", d => { return '#888';});
     }
@@ -635,7 +656,7 @@ class D3DeploymentPort {
 
 class D3Deployment {
     constructor () {
-        this._nodes = { list: [], ht: {} };
+        this._nodes = { list: [], ht: {}, tree: [] };
         this._edges = { list: [], ht: {} };
         this._ports = { list: [], ht: {} };
 
@@ -656,15 +677,15 @@ class D3Deployment {
             .append("defs") // TODO: さがせよ
             .append("marker")
             .attr('id', "edge-arrow")
-            .attr('refX', 0)
-            .attr('refY', 10)
-            .attr('markerWidth', 20)
-            .attr('markerHeight', 20)
+            .attr('refX', 15)
+            .attr('refY', 5)
+            .attr('markerWidth', 10)
+            .attr('markerHeight', 10)
             .attr('orient', "auto");
 
         // 矢印の形をpathで定義します。
         marker.append("path")
-            .attr('d', "M 0,0 V 20 L20,10 Z")
+            .attr('d', "M 0,0 V 10 L10,5 Z")
             .attr('fill', "#333");
 
         return this;
@@ -692,7 +713,11 @@ class D3Deployment {
         for (let data of tmp)
             node.fitting(data);
 
-        return this.data2pool(tmp, this._nodes);
+        let pool = this.data2pool(tmp, this._nodes);
+
+        pool.tree = tmp;
+
+        return pool;
     }
     importEdges (edges) {
         let edge = new D3DeploymentEdge();
@@ -741,29 +766,15 @@ class D3Deployment {
 
             let port_pos;
             if (port._type=='FROM')
-                port_pos = port.edge._core.from_position;
+                port_pos = port.edge._core.from.position;
             else
-                port_pos = port.edge._core.to_position;
+                port_pos = port.edge._core.to.position;
 
             let position = this.calculator.positioningPort(port,
                                                            port_pos,
                                                            port.node);
 
             port.position = position;
-
-            // if (port_type=='FROM') {
-            //     port.position = {
-            //         x: node_pos.x + node_size.w + 20,
-            //         y: node_pos.y + node_size.h / 2,
-            //     };
-            // }
-
-            // if (port_type=='TO') {
-            //     port.position = {
-            //         x: node_pos.x - 20,
-            //         y: node_pos.y + node_size.h / 2,
-            //     };
-            // }
         }
     }
     fittingEdges () {
@@ -809,23 +820,25 @@ class D3Deployment {
 
         let children = data.children.reduce((acc, val) => {
             val._level = lev;
-
             return acc.concat(this.flattenCore(val, lev * 10));
         }, []);
 
         return out.concat(children);
     }
     flatten () {
-        let data = this._nodes.list;
+        let data = this._nodes.tree;
 
         if (!data)
             return [];
 
         let lev = 10;
-        let out = data.reduce((acc, val) => {
+        return data.reduce((acc, val) => {
             val._level = lev;
-            return acc.concat(this.flattenCore(val, lev));
+            return acc.concat(this.flattenCore(val, lev * 10));
         }, []);
+    }
+    getDrawElements () {
+        let out = this.flatten();
 
         // port に level を設定
         for (let port of this._ports.list) {
@@ -835,10 +848,12 @@ class D3Deployment {
 
         // edge に level を設定
         for (let edge of this._edges.list) {
-            if (edge.from._level > edge.to._level)
-                edge._level = edge.from._level - 1;
+            let lev_from = edge.from.port._level;
+            let lev_to   = edge.to.port._level;
+            if (lev_from > lev_to)
+                edge._level = lev_from - 1;
             else
-                edge._level = edge.to._level - 1;
+                edge._level = lev_to   - 1;
 
             out.push(edge);
         }
@@ -865,7 +880,7 @@ class D3Deployment {
         painter.draw(place, element);
     }
     draw(place) {
-        let elements = this.flatten();
+        let elements = this.getDrawElements();
 
         for (let element of elements)
             this.drawElement(place, element);
