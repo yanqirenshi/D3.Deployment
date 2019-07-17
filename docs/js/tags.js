@@ -325,7 +325,13 @@ riot.tag2('page_example', '<section class="section"> <div class="container"> <di
      });
 });
 
-riot.tag2('home_page', '<section-header title="D3.Deployment"></section-header>', '', '', function(opts) {
+riot.tag2('home_page-cdn', '<section class="section"> <div class="container"> <h1 class="title">CDN</h1> <h2 class="subtitle"></h2> <div class="contents"> <table class="table is-bordered is-striped is-narrow is-hoverable"> <thead> <tr> <th>Version</th> <th>Url</th> </tr> </thead> <tbody> <tr each="{obj in list}"> <td>{obj.version}</td> <td> <a href="{obj.url}"> {obj.url} </a> </td> </tr> </tbody> </table> </div> </div> </section>', '', '', function(opts) {
+     this.list = [
+         { version: '0.0.1', url: 'https://yanqirenshi.github.io/D3.Deployment/dist/0.0.1/D3Deployment.js' },
+     ];
+});
+
+riot.tag2('home_page', '<section-header title="D3.Deployment"></section-header> <home_page-cdn></home_page-cdn>', '', '', function(opts) {
 });
 
 riot.tag2('page-usage', '<section-header title="Usage"></section-header> <section class="section"> <div class="container"> <h1 class="title"></h1> <h2 class="subtitle"></h2> <div class="contents"> </div> </div> </section>', '', '', function(opts) {
