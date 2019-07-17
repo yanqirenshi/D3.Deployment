@@ -1,23 +1,3 @@
-function getSize (element) {
-    let parent = element.parentNode; 
-    return {
-        w: parent.clientWidth  - 22 * 2,
-        h: parent.clientHeight - 22 * 2,
-    };
-}
-
-function makeCamera (size) {
-    return {
-        look: {
-            at: {
-                x: Math.floor(size.w / 2) * -1,
-                y: Math.floor(size.h / 2) * -1,
-            },
-        },
-        scale: 2.0,
-    };
-}
-
 function graphData () {
     return {
          nodes: [
