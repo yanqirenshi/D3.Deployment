@@ -40,6 +40,7 @@
                  size: { w: 300, h: 300 },
                  background: { color: '#ffffff' },
                  border: { width: 1, type: 'solid', color: '#666666' },
+                 link: { url: (d) => { return 'https://www.google.com'; }},
              },
              {
                  _id: 3,

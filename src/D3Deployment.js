@@ -521,10 +521,15 @@ class D3DeploymentNode {
             .append('a')
             .attr('class', 'link-alt')
             .attr('href', (d) => {
-                if (d.link.url)
+                let url = d.link.url;
+
+                if (!url)
                     return null;
 
-                return d.link.url;
+                if (typeof(url) == "function")
+                    return url(d);
+
+                return url;
             })
             .attr('target', '_blank')
             .attr('rel', 'noopener noreferrer')
@@ -543,7 +548,7 @@ class D3DeploymentNode {
                 return '12px';
             })
             .style("display", (d) => {
-                if (d.link.url)
+                if (!d.link.url)
                     return 'none';
 
                 return 'block';
