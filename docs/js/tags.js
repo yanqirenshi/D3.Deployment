@@ -240,12 +240,14 @@ riot.tag2('page_example', '<section class="section"> <div class="container"> <di
                  type: 'NODE',
                  label: {
                      contents: 'XXXXXXXX',
-                     position: { x: 20, y: 20 },
+                     position: { x: 20, y: 30 },
+                     font: { size: 24, color: '#d7003a' },
                  },
                  position: { x: 100 - 900, y: 100 - 500},
                  size: { w: 300, h: 300 },
                  background: { color: '#ffffff' },
                  border: { width: 1, type: 'solid', color: '#666666' },
+                 link: { url: "https://twitter.com/home" },
                  children: [
                  ]
              },
@@ -327,7 +329,8 @@ riot.tag2('page_example', '<section class="section"> <div class="container"> <di
 
 riot.tag2('home_page-cdn', '<section class="section"> <div class="container"> <h1 class="title">CDN</h1> <h2 class="subtitle"></h2> <div class="contents"> <table class="table is-bordered is-striped is-narrow is-hoverable"> <thead> <tr> <th>Version</th> <th>Url</th> </tr> </thead> <tbody> <tr each="{obj in list}"> <td>{obj.version}</td> <td> <a href="{obj.url}"> {obj.url} </a> </td> </tr> </tbody> </table> </div> </div> </section>', '', '', function(opts) {
      this.list = [
-         { version: '0.0.1', url: 'https://yanqirenshi.github.io/D3.Deployment/dist/0.0.1/D3Deployment.js' },
+         { version: '0.0.2 (dev)', url: 'https://yanqirenshi.github.io/D3.Deployment/dist/0.0.2/D3Deployment.js' },
+         { version: '0.0.1',       url: 'https://yanqirenshi.github.io/D3.Deployment/dist/0.0.1/D3Deployment.js' },
      ];
 });
 

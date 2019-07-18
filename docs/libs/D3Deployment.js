@@ -153,6 +153,7 @@ class D3DeploymentNode {
             size:     null,   // See Metho: adjustSize
             background: null, // See Metho: adjustBackground,
             border: null,
+            link: null,
             children: [],
             _id: null,
             _core: null,
@@ -162,11 +163,16 @@ class D3DeploymentNode {
     adjustBase (data) {
         let core = data._core;
 
-        if (data._core._id || data._core._id==0)
-            data._id = data._core._id;
+        if (core._id || core._id==0)
+            data._id = core._id;
 
-        if (data._core.type)
-            data.type = data._core.type;
+        if (core.type)
+            data.type = core.type;
+
+        if (core.link)
+            data.link = core.link;
+        else
+            data.link = { url: null };
     }
     adjustLabel (data) {
         let core = data._core;
@@ -179,6 +185,12 @@ class D3DeploymentNode {
 
         if (core.label.position)
             data.label.position = core.label.position;
+
+        if (core.label.font) // font: { size: 18, color: '#19448e' }
+            data.label.font = core.label.font;
+        else
+            data.label.font = { size: 16, color: '#333333' };
+
     }
     adjustSize (data) {
         let size_core = data._core.size;
@@ -440,6 +452,15 @@ class D3DeploymentNode {
             .attr('y', (d) => {
                 return d.label.position.y;
             })
+            .style('fill', (d) => {
+                return d.label.font.color;
+            })
+            .attr('stroke', (d) => {
+                return 'none';
+            })
+            .style('font-size', (d) => {
+                return d.label.font.size;
+            })
             .text((d) => {
                 return d.label.contents;
             })
@@ -495,6 +516,39 @@ class D3DeploymentNode {
             .attr('stroke', (d) => { return '#333'; })
             .attr('stroke-width', (d) => { return 1; });
     }
+    drawLink (groups) {
+        let a_element = groups
+            .append('a')
+            .attr('class', 'link-alt')
+            .attr('href', (d) => {
+                if (d.link.url)
+                    return null;
+
+                return d.link.url;
+            })
+            .attr('target', '_blank')
+            .attr('rel', 'noopener noreferrer')
+            .style('color', '#888888');
+
+        a_element
+            .append('i')
+            .attr('class', 'fas fa-external-link-alt')
+            .attr('width', (d) => { return 22;})
+            .attr('height', (d) => { return 22;})
+            .attr('x', (d) => { return 10;})
+            .attr('y', (d) => {
+                return d.size.h - 12 - 20;
+            })
+            .style("font-size", (d) => {
+                return '12px';
+            })
+            .style("display", (d) => {
+                if (d.link.url)
+                    return 'none';
+
+                return 'block';
+            });
+    }
     drawComponent (place, data) {
         let groups = place.selectAll('g.node')
             .data([data], (d) => { return d._id; })
@@ -529,6 +583,7 @@ class D3DeploymentNode {
 
         this.drawBody(groups, data);
         this.drawLabel(groups, data);
+        this.drawLink(groups, data);
     }
     draw (place, data) {
         if (data.type=='NODE') {

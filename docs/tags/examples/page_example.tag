@@ -18,12 +18,14 @@
                  type: 'NODE',
                  label: {
                      contents: 'XXXXXXXX',
-                     position: { x: 20, y: 20 },
+                     position: { x: 20, y: 30 },
+                     font: { size: 24, color: '#d7003a' },
                  },
                  position: { x: 100 - 900, y: 100 - 500},
                  size: { w: 300, h: 300 },
                  background: { color: '#ffffff' },
                  border: { width: 1, type: 'solid', color: '#666666' },
+                 link: { url: "https://twitter.com/home" },
                  children: [
                  ]
              },
