@@ -571,6 +571,7 @@ class D3DeploymentNode {
         this.drawBody(groups, data);
         this.drawIcon(groups, data);
         this.drawLabel(groups, data);
+        this.drawLink(groups, data);
     }
     drawNode (place, data) {
         let groups = place.selectAll('g.node')
