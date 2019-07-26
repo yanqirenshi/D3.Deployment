@@ -548,7 +548,15 @@ class D3Deployment {
         let x = point.x;
         let y = point.y;
 
-        let radian = this._calculator.deg2rad((degree || 90) % 360);
+        let degree_tmp;
+        if (degree===0)
+            degree_tmp = degree;
+        else if (!degree)
+            degree_tmp = 90;
+        else
+            degree_tmp = degree % 360;
+
+        let radian = this._calculator.deg2rad(degree_tmp);
         let cos = Math.cos(radian);
         let sin = Math.sin(radian);
 
