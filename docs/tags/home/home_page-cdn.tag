@@ -30,7 +30,8 @@
 
     <script>
      this.list = [
-         { version: '0.0.1', url: 'https://yanqirenshi.github.io/D3.Deployment/dist/0.0.1/D3Deployment.js' },
+         { version: '0.0.2 (dev)', url: 'https://yanqirenshi.github.io/D3.Deployment/dist/0.0.2/D3Deployment.js' },
+         { version: '0.0.1',       url: 'https://yanqirenshi.github.io/D3.Deployment/dist/0.0.1/D3Deployment.js' },
      ];
     </script>
 

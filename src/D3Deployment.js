@@ -5,115 +5,10 @@ class D3DeploymentMarkers {
     }
 }
 
-class D3DeploymentCalculator {
-    deg2rad (degree) {
-        return degree * ( Math.PI / 180 );
-    }
-    isCorss(A, B, C, D) {
-        // 二つの線分の交差チェック
-        // https://www.hiramine.com/programming/graphics/2d_segmentintersection.html
-        let ACx = C.x - A.x;
-        let ACy = C.y - A.y;
-        let BUNBO = (B.x - A.x) * (D.y - C.y) - (B.y - A.y) * (D.x - C.x);
-
-        if (BUNBO==0)
-            return false;
-
-        let r = ((D.y - C.y) * ACx - (D.x - C.x) * ACy) / BUNBO;
-        let s = ((B.y - A.y) * ACx - (B.x - A.x) * ACy) / BUNBO;
-
-        return ((0 <= r && r <= 1) && (0 <= s && s <= 1));
-    }
-    // 2直線の交点を求める。(具)
-    getCrossPointCore (line, line_port, port) {
-        let out = { x:0, y:0 };
-
-        let A = line.from;
-        let B = line.to;
-        let C = line_port.from;
-        let D = line_port.to;
-
-        let bunbo = (B.y - A.y) * (D.x - C.x) - (B.x - A.x) * (D.y - C.y);
-
-        if (!this.isCorss(A, B, C, D))
-            return null;
-
-        // 二つの線分の交点を算出する。
-        // http://mf-atelier.sakura.ne.jp/mf-atelier/modules/tips/program/algorithm/a1.html
-        let d1, d2;
-
-        d1 = (C.y * D.x) - (C.x * D.y);
-        d2 = (A.y * B.x) - (A.x * B.y);
-
-        out.x = (d1 * (B.x - A.x) - d2 * (D.x - C.x)) / bunbo;
-        out.y = (d1 * (B.y - A.y) - d2 * (D.y - C.y)) / bunbo;
-
-        return out;
-    }
-    // 2直線の交点を求める。
-    getCrossPoint (lines, line_port, port) {
-        for (let line of lines) {
-            let point = this.getCrossPointCore(line, line_port, port);
-
-            if (point)
-                return point;
-        }
-        return null;
-    }
-    getPortLineFrom (node) {
-        return {
-            x: Math.floor(node.size.w / 2) + node.position.x ,
-            y: Math.floor(node.size.h / 2) + node.position.y
-        };
-    }
-    getPortLineLength (node) {
-        let max_length = Math.floor(Math.sqrt((node.size.w * node.size.w) + (node.size.h * node.size.h)));
-
-        return 0.8 * max_length;
-    }
-    makePortLine (port, port_pos, node) {
-        let out = {
-            from: {x:0, y:0},
-            to:   {x:0, y:0},
-        };
-
-        let from = this.getPortLineFrom(node);
-        out.from.x = from.x;
-        out.from.y = from.y;
-
-        let x = 0;
-        let y = this.getPortLineLength(node);
-        let degree = (port_pos || 90) % 360;
-
-        let radian = this.deg2rad(degree);
-        let cos = Math.cos(radian);
-        let sin = Math.sin(radian);
-
-        out.to.x = Math.floor(x * cos - y * sin);
-        out.to.y = Math.floor(x * sin + y * cos);
-
-        out.to.x += out.from.x;
-        out.to.y += out.from.y;
-
-        port._from = out.from;
-        port._to   = out.to;
-
-        return out;
-    }
-    positioningPort (port, port_pos, node) {
-        let lines_entity = new D3DeploymentNode().getFourSides(node);
-        let line_port    = this.makePortLine(port, port_pos, node);
-
-        let point        = this.getCrossPoint(lines_entity, line_port, port);
-
-        if (!point)
-            point = {x:0, y:0};
-
-        return point;
-    }
-}
-
 class D3DeploymentNode {
+    constructor() {
+        this.drawer = new DrawerHierarchy();
+    }
     ///// ////////////////////////////////////////////////////////////////
     /////   Utility
     ///// ////////////////////////////////////////////////////////////////
@@ -148,144 +43,34 @@ class D3DeploymentNode {
             label: {
                 contents: '',
                 position: { x: 20, y: 20 },
+                font: { size: 16, color: '#333333' },
             },
-            position: null,   // See Mthod: adjustPosition
-            size:     null,   // See Metho: adjustSize
-            background: null, // See Metho: adjustBackground,
+            position: null,
+            size:     null,
+            background: null,
             border: null,
+            link: null,
             children: [],
             _id: null,
             _core: null,
             _class: 'NODE',
         };
     };
-    adjustBase (data) {
+    normalizeBase (data) {
         let core = data._core;
 
-        if (data._core._id || data._core._id==0)
-            data._id = data._core._id;
+        if (core._id || core._id==0)
+            data._id = core._id;
 
-        if (data._core.type)
-            data.type = data._core.type;
+        if (core.type)
+            data.type = core.type;
+
+        if (core.link)
+            data.link = core.link;
+        else
+            data.link = { url: null };
     }
-    adjustLabel (data) {
-        let core = data._core;
-
-        if (!core.label)
-            return;
-
-        if (core.label.contents)
-            data.label.contents = core.label.contents;
-
-        if (core.label.position)
-            data.label.position = core.label.position;
-    }
-    adjustSize (data) {
-        let size_core = data._core.size;
-        let template = { w: 0, h: 0 };
-
-        if (!size_core) {
-            data.size = template;
-
-            return;
-        }
-
-        if (!data.size)
-            data.size = template;
-
-        let size = data.size;
-
-        if (size_core.w || size_core.w==0)
-            size.w = size_core.w;
-
-        if (size_core.h || size_core.h==0)
-            size.h = size_core.h;
-    }
-    adjustPosition (data) {
-        let position_core = data._core.position;
-        let template = { x: 0, y: 0 };
-
-        if (!position_core) {
-            data.position = template;
-
-            return;
-        }
-
-        if (!data.position)
-            data.position = template;
-
-        let position = data.position;
-
-        if (position_core.x || position_core.x==0)
-            position.x = position_core.x;
-
-        if (position_core.y || position_core.y==0)
-            position.y = position_core.y;
-    }
-    adjustBackground (data) {
-        let background_core = data._core.background;
-        let template = {
-            color: '#ffffff'
-        };
-
-        if (!background_core) {
-            data.background = template;
-
-            return;
-        }
-
-        if (!data.background)
-            data.background = template;
-
-        let background = data.background;
-
-        if (background_core.color)
-            background.color = background_core.color;
-    }
-    adjustBorder (data) {
-        let border_core = data._core.border;
-        let template = {
-            width: 1,
-            type: 'solid',
-            color: '#666666'
-        };
-
-        if (!border_core) {
-            data.border = template;
-
-            return;
-        }
-
-        if (!data.border)
-            data.border = template;
-
-        let border = data.border;
-
-        if (border_core.width || border_core.width==0)
-            border.width = border_core.width;
-
-        if (border_core.color)
-            border.color = border_core.color;
-
-        if (border_core.type)
-            border.type = border_core.type;
-    }
-    adjustPadding (data) {
-        let padding_core = data._core.padding;
-        let template = { top: 0, left: 0, bottom: 0, right: 0 };
-
-        if (!padding_core) {
-            data.padding = template;
-
-            return;
-        }
-
-        if (!data.padding)
-            data.padding = template;
-
-        let padding = data.padding;
-    }
-    adjust (data) {
+    normalize (data) {
         if (!data)
             return null;
 
@@ -295,91 +80,21 @@ class D3DeploymentNode {
 
         if (data.children && data.children.length > 0)
             new_data.children = data.children.map((d) => {
-                return this.adjust(d);
+                return this.normalize(d);
             });
 
-        this.adjustBase(new_data);
-        this.adjustLabel(new_data);
-        this.adjustSize(new_data);
-        this.adjustPosition(new_data);
-        this.adjustBackground(new_data);
-        this.adjustBorder(new_data);
-        this.adjustPadding(new_data);
+        this.normalizeBase(new_data);
+
+        let drawer = this.drawer;
+        new_data.label      = drawer.normalizeLabel(new_data._core.label);
+        new_data.size       = drawer.normalizeSize(new_data._core.size);
+        new_data.position   = drawer.normalizePosition(new_data._core.position);
+        new_data.border     = drawer.normalizeBorder(new_data._core.border);
+        new_data.padding    = drawer.normalizePadding(new_data._core.padding);
+
+        new_data.background = drawer.normalizeBackground(new_data._core.background);
 
         return new_data;
-    }
-    ///// ////////////////////////////////////////////////////////////////
-    /////   Fitting
-    ///// ////////////////////////////////////////////////////////////////
-    element2rect (element) {
-        return {
-            from: {
-                x: element.position.x,
-                y: element.position.y,
-            },
-            to: {
-                x: element.position.x + element.size.w,
-                y: element.position.y + element.size.h,
-            }
-        };
-    }
-    fittingCalSizeCore (rect_a, rect_b) {
-        if (!rect_a.from) {
-            rect_a.from = { x: rect_b.from.x, y: rect_b.from.y };
-        } else {
-            if (rect_a.from.x > rect_b.from.x)
-                rect_a.from.x = rect_b.from.x;
-
-            if (rect_a.from.y > rect_b.from.y)
-                rect_a.from.y = rect_b.from.y;
-        }
-
-        if (!rect_a.to) {
-            rect_a.to = {
-                x: rect_b.to.x,
-                y: rect_b.to.y,
-            };
-        } else {
-            if (rect_a.to.x < rect_b.to.x)
-                rect_a.to.x = rect_b.to.x;
-
-            if (rect_a.to.y < rect_b.to.y)
-                rect_a.to.y = rect_b.to.y;
-        }
-    }
-    fittingCalSize (rect, child) {
-        let rect_a = rect;
-        let rect_b = this.element2rect(child);
-
-        this.fittingCalSizeCore(rect_a, rect_b);
-    }
-    fitting (data, parent) {
-        // parent からの相対位置で補正
-        if (parent) {
-            data.position.x = parent.position.x + data.position.x;
-            data.position.y = parent.position.y + data.position.y;
-        }
-
-        // children も同様に。
-        let rect = {
-            from: null,
-            to: null,
-        };
-
-        // children の fitting 合せて data のサイズも計測。
-        let children = data.children;
-        if (children && children.length > 0) {
-            for (let child of data.children) {
-                this.fitting(child, data);
-
-                this.fittingCalSize(rect, child); // rect は破壊的
-            }
-
-            // children 内容で data のサイズを補正
-            this.fittingCalSizeCore(rect, this.element2rect(data));
-            data.size.w = rect.to.x - rect.from.x;
-            data.size.h = rect.to.y - rect.from.y;
-        }
     }
     ///// ////////////////////////////////////////////////////////////////
     /////   Filter
@@ -440,6 +155,15 @@ class D3DeploymentNode {
             .attr('y', (d) => {
                 return d.label.position.y;
             })
+            .style('fill', (d) => {
+                return d.label.font.color;
+            })
+            .attr('stroke', (d) => {
+                return 'none';
+            })
+            .style('font-size', (d) => {
+                return d.label.font.size;
+            })
             .text((d) => {
                 return d.label.contents;
             })
@@ -495,6 +219,44 @@ class D3DeploymentNode {
             .attr('stroke', (d) => { return '#333'; })
             .attr('stroke-width', (d) => { return 1; });
     }
+    drawLink (groups) {
+        let a_element = groups
+            .append('a')
+            .attr('class', 'link-alt')
+            .attr('href', (d) => {
+                let url = d.link.url;
+
+                if (!url)
+                    return null;
+
+                if (typeof(url) == "function")
+                    return url(d);
+
+                return url;
+            })
+            .attr('target', '_blank')
+            .attr('rel', 'noopener noreferrer')
+            .style('color', '#888888');
+
+        a_element
+            .append('i')
+            .attr('class', 'fas fa-external-link-alt')
+            .attr('width', (d) => { return 22;})
+            .attr('height', (d) => { return 22;})
+            .attr('x', (d) => { return 10;})
+            .attr('y', (d) => {
+                return d.size.h - 12 - 20;
+            })
+            .style("font-size", (d) => {
+                return '12px';
+            })
+            .style("display", (d) => {
+                if (!d.link.url)
+                    return 'none';
+
+                return 'block';
+            });
+    }
     drawComponent (place, data) {
         let groups = place.selectAll('g.node')
             .data([data], (d) => { return d._id; })
@@ -512,6 +274,7 @@ class D3DeploymentNode {
         this.drawBody(groups, data);
         this.drawIcon(groups, data);
         this.drawLabel(groups, data);
+        this.drawLink(groups, data);
     }
     drawNode (place, data) {
         let groups = place.selectAll('g.node')
@@ -529,6 +292,7 @@ class D3DeploymentNode {
 
         this.drawBody(groups, data);
         this.drawLabel(groups, data);
+        this.drawLink(groups, data);
     }
     draw (place, data) {
         if (data.type=='NODE') {
@@ -565,7 +329,7 @@ class D3DeploymentEdge {
             _class:    'EDGE',
         };
     }
-    adjust (data) {
+    normalize (data) {
         let new_data = this.dataTemplate();
 
         new_data._core = data;
@@ -629,7 +393,7 @@ class D3DeploymentPort {
             _class: 'PORT',
         };
     }
-    adjust (data) {
+    normalize (data) {
         let tmp = this.dataTemplate();
 
         tmp._core = data;
@@ -668,7 +432,11 @@ class D3Deployment {
             PORT: new D3DeploymentPort(),
         };
 
-        this.calculator = new D3DeploymentCalculator();
+        this._calculator = new DrawerGeometry();
+        this._drawer     = new DrawerHierarchy();
+        this._node       = new D3DeploymentNode();
+        this._port       = new D3DeploymentPort();
+        this._edge       = new D3DeploymentEdge();
     }
     init (svg) {
         new D3DeploymentNode().addFilterShadow(svg);
@@ -704,14 +472,15 @@ class D3Deployment {
         return pool;
     }
     importNodes (nodes) {
-        let node = new D3DeploymentNode();
+        let node = this._node;
 
         let tmp = (nodes || []).map((d) => {
-            return node.adjust(d);
+            return node.normalize(d);
         });
 
+        let drawer = this._drawer;
         for (let data of tmp)
-            node.fitting(data);
+            drawer.fitting(data);
 
         let pool = this.data2pool(tmp, this._nodes);
 
@@ -720,18 +489,19 @@ class D3Deployment {
         return pool;
     }
     importEdges (edges) {
-        let edge = new D3DeploymentEdge();
+        let edge = this._edge;
+
         let id = 1;
 
         let tmp = (edges || []).map((d) => {
             d._id = this.id_counter++;
-            return edge.adjust(d, id++);
+            return edge.normalize(d, id++);
         });
 
         return this.data2pool(tmp, this._edges);
     }
     makePort (type, node, edge) {
-        let port = new D3DeploymentPort().adjust({
+        let port = this._port.normalize({
             node:   node,
             edge:   edge,
             _id:    this.id_counter++,
@@ -758,49 +528,117 @@ class D3Deployment {
             edge.to.port   = this.makePort('TO',   edge.to.node,   edge);
         }
     }
-    fittingPorts () {
-        for (let port of this._ports.list) {
-            let port_type = port._type;
-            let node_pos  = port.node.position;
-            let node_size = port.node.size;
-
-            let port_pos;
-            if (port._type=='FROM')
-                port_pos = port.edge._core.from.position;
-            else
-                port_pos = port.edge._core.to.position;
-
-            let position = this.calculator.positioningPort(port,
-                                                           port_pos,
-                                                           port.node);
-
-            port.position = position;
-        }
+    getPortLineFrom (node) {
+        return {
+            x: Math.floor(node.size.w / 2) + node.position.x ,
+            y: Math.floor(node.size.h / 2) + node.position.y
+        };
     }
-    fittingEdges () {
-        for (let edge of this._edges.list) {
-            edge.from.position = {
-                x: edge.from.port.position.x,
-                y: edge.from.port.position.y,
-            };
+    getPortLineToPoint (node) {
+        let w = node.size.w;
+        let h = node.size.h;
 
-            edge.to.position = {
-                x: edge.to.port.position.x,
-                y: edge.to.port.position.y,
-            };
-        }
+        return {
+            x: 0,
+            y: Math.floor(Math.sqrt((w * w) + (h * h))),
+        };
+    }
+    getPortLineTo (degree, node) {
+        let point = this.getPortLineToPoint(node);
+        let x = point.x;
+        let y = point.y;
+
+        let degree_tmp;
+        if (degree===0)
+            degree_tmp = degree;
+        else if (!degree)
+            degree_tmp = 90;
+        else
+            degree_tmp = degree % 360;
+
+        let radian = this._calculator.deg2rad(degree_tmp);
+        let cos = Math.cos(radian);
+        let sin = Math.sin(radian);
+
+        return {
+            x: Math.floor(x * cos - y * sin),
+            y: Math.floor(x * sin + y * cos),
+        };
+    }
+    /**
+     * Port の位置を計算するため、Port と Nodeの中心の直線を算出する。
+     *
+     * @param {object} port Line を算出する対象の Port。 TODO: これ、つこてなくない？
+     * @param {number} port_pos_degree Port の位置。
+     * @param {object} node port の Node。 算出した Line の位置を補正するための Node
+     */
+    makePortLine (degree, node) {
+        let from = this.getPortLineFrom(node);
+        let to   = this.getPortLineTo(degree, node);
+
+        return {
+            from: {
+                x: from.x,
+                y: from.y,
+            },
+            to: {
+                x: to.x + from.x,
+                y: to.y + from.y,
+            },
+        };
+    }
+    positioningPort (port, port_pos_degree, node) {
+        let calc = this._calculator;
+
+        let lines_entity = new D3DeploymentNode().getFourSides(node);
+        let line_port    = this.makePortLine(port_pos_degree, node);
+
+        return calc.getCrossPoint(lines_entity, line_port) || {x:0, y:0};
+    }
+    fittingPort (port) {
+        let port_type = port._type;
+        let node_pos  = port.node.position;
+        let node_size = port.node.size;
+
+        let port_pos;
+        if (port._type=='FROM')
+            port_pos = port.edge._core.from.position;
+        else
+            port_pos = port.edge._core.to.position;
+
+        let position = this.positioningPort(port,
+                                            port_pos,
+                                            port.node);
+
+        port.position = position;
+    }
+    fittingEdge (edge) {
+        edge.from.position = {
+            x: edge.from.port.position.x,
+            y: edge.from.port.position.y,
+        };
+
+        edge.to.position = {
+            x: edge.to.port.position.x,
+            y: edge.to.port.position.y,
+        };
     }
     data (data) {
         if (arguments.length==0)
             return this._nodes.list;
 
-        let x = this.importNodes(data.nodes);
-        let y = this.importEdges(data.edges);
+        this.importNodes(data.nodes);
+        this.importEdges(data.edges);
 
         this.makePorts(this._edges.list);
 
-        this.fittingPorts();
-        this.fittingEdges();
+        // fitting ports
+        for (let port of this._ports.list)
+            this.fittingPort(port);
+
+        // fitting edges
+        for (let edge of this._edges.list)
+            this.fittingEdge(edge);
 
         return this;
     }
