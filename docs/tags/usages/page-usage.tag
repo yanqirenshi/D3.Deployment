@@ -23,16 +23,17 @@
     </section>
 
     <style>
-     page-usage pre {
-         font-size: 12px;
-         line-height: 12px;
-     }
-
      page-usage {
          display: block;
          width: 100%;
          height: 100%;
          overflow: auto;
+         margin-left: 55px;
+     }
+
+     page-usage pre {
+         font-size: 12px;
+         line-height: 12px;
      }
 
      page-usage .flex-root {
