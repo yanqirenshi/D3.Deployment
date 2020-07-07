@@ -20,6 +20,7 @@ const NODE_DATA = [
                 position: { x:100, y:100 },
                 children: [],
                 id: 3,
+                link: { url: 'https://twitter.com/home' },
             },
         ],
         id: 1,
