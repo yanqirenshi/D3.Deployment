@@ -144,10 +144,10 @@ export default class D3DeploymentNode {
         groups
             .append('rect')
             .attr('class', 'node-body')
-            .attr('width', (d) => { return d.size.w;})
-            .attr('height', (d) => { return d.size.h;})
-            .attr('rx', (d) => { return (d.border && d.border.r) || 0;})
-            .attr('ry', (d) => { return (d.border && d.border.r) || 0;})
+            .attr('width', (d) => { return d.size.w; })
+            .attr('height', (d) => { return d.size.h; })
+            .attr('rx', (d) => { return (d.border && d.border.r) || 0; })
+            .attr('ry', (d) => { return (d.border && d.border.r) || 0; })
             .attr('fill', (d) => {
                 return d.background.color;
             })
@@ -251,13 +251,10 @@ export default class D3DeploymentNode {
             .style('color', '#888888');
 
         a_element
-            .append('i')
-            .attr('class', 'fas fa-external-link-alt')
-            .attr('width', (d) => { return 22;})
-            .attr('height', (d) => { return 22;})
+            .append('text')
             .attr('x', (d) => { return 10;})
             .attr('y', (d) => {
-                return d.size.h - 12 - 20;
+                return d.size.h - 10;
             })
             .style("font-size", (d) => {
                 return '12px';
@@ -267,6 +264,12 @@ export default class D3DeploymentNode {
                     return 'none';
 
                 return 'block';
+            })
+            .text((d) => {
+                if (!d.link.url)
+                    return '';
+
+                return 'link';
             });
     }
     drawComponent (place, data) {

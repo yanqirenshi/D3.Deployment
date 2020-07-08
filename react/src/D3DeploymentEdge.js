@@ -17,6 +17,11 @@ export default class D3DeploymentEdge {
                 position: { x:0, y:0 },
             },
 
+            stroke: {
+                color: '#333',
+                width: 1.5,
+            },
+
             _id:       null,
             _core:     null,
             _class:    'EDGE',
@@ -36,6 +41,9 @@ export default class D3DeploymentEdge {
         if (data.to.id)
             new_data.to.id = data.to.id;
 
+        if (data.stroke)
+            new_data.stroke = data.stroke;
+
         data._edge = new_data;
 
         return new_data;
@@ -48,6 +56,7 @@ export default class D3DeploymentEdge {
             {
                 "x": data.from.position.x,
                 "y": data.from.position.y,
+                stroke: data._core.stroke,
             },
             {
                 "x": data.to.position.x,
@@ -65,9 +74,15 @@ export default class D3DeploymentEdge {
             .attr("fill", "none")
             .attr("d", lineFunction)
             .attr('marker-end', "url(#edge-arrow)")
-            .style("stroke-width", 1.5)
-            .style('fill',   (d) => { return '#fff';})
-            .style("stroke", (d) => { return '#888';});
+            .style('fill', (d) => {
+                return d[0].stroke.color;
+            })
+            .style("stroke", (d) => {
+                return d[0].stroke.color;
+            })
+            .style("stroke-width", (d) => {
+                return d[0].stroke.width;
+            });
 
 
         var len = path.node().getTotalLength();

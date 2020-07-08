@@ -144,10 +144,10 @@ export default class D3DeploymentNode {
         groups
             .append('rect')
             .attr('class', 'node-body')
-            .attr('width', (d) => { return d.size.w;})
-            .attr('height', (d) => { return d.size.h;})
-            .attr('rx', (d) => { return (d.border && d.border.r) || 0;})
-            .attr('ry', (d) => { return (d.border && d.border.r) || 0;})
+            .attr('width', (d) => { return d.size.w; })
+            .attr('height', (d) => { return d.size.h; })
+            .attr('rx', (d) => { return (d.border && d.border.r) || 0; })
+            .attr('ry', (d) => { return (d.border && d.border.r) || 0; })
             .attr('fill', (d) => {
                 return d.background.color;
             })
