@@ -16,10 +16,10 @@ function DeploymentGraph (props) {
             d3deployment.init({
                 svg: {
                     selector: '#deployment-graph',
-                    w: 1024,
-                    h: 333,
                 },
             });
+
+        d3deployment.focus();
 
         d3deployment.data({
             nodes: NODE_DATA,
@@ -32,23 +32,15 @@ function DeploymentGraph (props) {
     const style = {
         root: {
             background: '#f3f3f3',
+            height: '100%',
             width: '100%',
-            height: '333px',
-        },
-        operators: {
-            marginTop: '11px',
         },
     };
 
     return (
         <>
           <div style={style.root}>
-            <svg id='deployment-graph'
-                 width='1024px'
-                 height='333px' />
-
-          </div>
-          <div style={style.operators}>
+            <svg id='deployment-graph' />
           </div>
         </>
     );

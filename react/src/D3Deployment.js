@@ -71,7 +71,7 @@ export default class D3Deployment {
         let d3svg = new D3Svg();
 
         d3svg.init({
-            d3_element: this.selector,
+            selector: this.selector,
             w:     this.w,
             h:     this.h,
             look:  this.look,
@@ -92,6 +92,9 @@ export default class D3Deployment {
     }
     getSvgElement () {
         return this.getSvg().d3Element();
+    }
+    focus () {
+        this.getSvg().focus();
     }
     /* ******** */
     /*  Layers  */

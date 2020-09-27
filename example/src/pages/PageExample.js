@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 // import ExampleData from '../js/ExampleData.js';
 
@@ -9,11 +9,12 @@ function PageExample () {
     const style = {
         root: {
             background: '#ffffff',
-            width: '1024px',
+            width: '100%',
             marginLeft: 'auto',
             marginRight: 'auto',
         },
         graph_area: {
+            height: 666,
             marginTop: '22px',
             marginBottom: '22px',
         },
