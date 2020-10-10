@@ -1,6 +1,6 @@
 {
     "name": "@yanqirenshi/d3.deployment",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "",
     "main": "index.js",
     "scripts": {
@@ -20,6 +20,7 @@
     "homepage": "https://yanqirenshi.github.io/D3.Deployment/#home",
     "dependencies": {
         "@yanqirenshi/d3.svg": "0.0.14",
+        "@yanqirenshi/assh0le": "0.0.7",
         "d3": "^5.15.0"
     },
     "devDependencies": {
