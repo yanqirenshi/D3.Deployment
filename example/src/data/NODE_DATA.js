@@ -2,22 +2,23 @@ const NODE_DATA = [
     {
         type: 'NODE',
         label: {
-            contents: 'NODE 01',
+            text: 'NODE 01',
             position: { x: 20, y: 20 },
             font: { size: 16, color: '#333333' },
         },
+        padding: 50,
         size: { w:300, h:300 },
         position: { x:0, y:0 },
         children: [
             {
                 type: 'NODE',
                 label: {
-                    contents: 'NODE 03',
+                    text: 'NODE 03',
                     position: { x: 20, y: 20 },
                     font: { size: 16, color: '#333333' },
                 },
                 size: { w:100, h:100 },
-                position: { x:100, y:100 },
+                position: { x:200, y:200 },
                 children: [],
                 id: 3,
                 link: { url: 'https://twitter.com/home' },
@@ -28,7 +29,7 @@ const NODE_DATA = [
     {
         type: 'NODE',
         label: {
-            contents: 'NODE 02',
+            text: 'NODE 02',
             position: { x: 20, y: 20 },
             font: { size: 16, color: '#333333' },
         },
@@ -38,7 +39,7 @@ const NODE_DATA = [
             {
                 type: 'COMPONENT',
                 label: {
-                    contents: 'COPM 01',
+                    text: 'COPM 01',
                     position: { x: 20, y: 20 },
                     font: { size: 16, color: '#333333' },
                 },

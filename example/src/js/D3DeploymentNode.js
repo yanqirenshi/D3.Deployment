@@ -1,8 +1,13 @@
-import { DrawerHierarchy } from './Drawer.js';
+import {Background,Position,Rectangle,Stroke,Label,Padding} from '@yanqirenshi/assh0le';
 
 export default class D3DeploymentNode {
     constructor() {
-        this.drawer = new DrawerHierarchy();
+        this.label = new Label();
+        this.rectangle = new Rectangle();
+        this.position = new Position();
+        this.stroke = new Stroke();
+        this.background = new Background();
+        this.padding = new Padding();
     }
     ///// ////////////////////////////////////////////////////////////////
     /////   Utility
@@ -11,11 +16,11 @@ export default class D3DeploymentNode {
         let port_r = 4;
         let margin =  4 + port_r;
 
-        let x = data.position.x;
-        let y = data.position.y;
+        let x = data._position.x;
+        let y = data._position.y;
 
-        let w = data.size.w;
-        let h = data.size.h;
+        let w = data._size.w;
+        let h = data._size.h;
 
         let top_left     = { x: x -     margin, y: y -     margin};
         let top_right    = { x: x + w + margin, y: y -     margin};
@@ -81,14 +86,13 @@ export default class D3DeploymentNode {
 
         this.normalizeBase(new_data);
 
-        let drawer = this.drawer;
-        new_data.label      = drawer.normalizeLabel(new_data._core.label);
-        new_data.size       = drawer.normalizeSize(new_data._core.size);
-        new_data.position   = drawer.normalizePosition(new_data._core.position);
-        new_data.border     = drawer.normalizeBorder(new_data._core.border);
-        new_data.padding    = drawer.normalizePadding(new_data._core.padding);
+        new_data.label      = this.label.build(new_data._core.label);
 
-        new_data.background = drawer.normalizeBackground(new_data._core.background);
+        new_data.size       = this.rectangle.build(new_data._core.size);
+        new_data.position   = this.position.build(new_data._core.position);
+        new_data.border     = this.stroke.build(new_data._core.border) || this.stroke.template();
+        new_data.padding    = this.padding.build(new_data._core.padding);
+        new_data.background = this.background.build(new_data._core.background);
 
         data._node = new_data;
 
@@ -134,8 +138,8 @@ export default class D3DeploymentNode {
             .attr('class', type)
             .attr("transform", (d) => {
                 return "translate(" +
-                    d.position.x + "," +
-                    d.position.y +
+                    d._position.x + "," +
+                    d._position.y +
                     ")";
             })
             .attr('level',  (d) => { return d._level;});
@@ -144,8 +148,8 @@ export default class D3DeploymentNode {
         groups
             .append('rect')
             .attr('class', 'node-body')
-            .attr('width', (d) => { return d.size.w; })
-            .attr('height', (d) => { return d.size.h; })
+            .attr('width', (d) => { return d._size.w; })
+            .attr('height', (d) => { return d._size.h; })
             .attr('rx', (d) => { return (d.border && d.border.r) || 0; })
             .attr('ry', (d) => { return (d.border && d.border.r) || 0; })
             .attr('fill', (d) => {
@@ -177,7 +181,7 @@ export default class D3DeploymentNode {
                 return d.label.font.size;
             })
             .text((d) => {
-                return d.label.contents;
+                return d.label.text;
             })
         ;
     }

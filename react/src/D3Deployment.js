@@ -1,5 +1,6 @@
 import D3Svg from '@yanqirenshi/d3.svg';
-import { DrawerGeometry, DrawerHierarchy } from './Drawer.js';
+
+import {Hierarchy, Geometry} from '@yanqirenshi/assh0le';
 
 import D3DeploymentNode from './D3DeploymentNode.js';
 import D3DeploymentEdge from './D3DeploymentEdge.js';
@@ -13,8 +14,7 @@ export default class D3Deployment {
 
         this.id_counter = 1;
 
-        this._calculator = new DrawerGeometry();
-        this._drawer     = new DrawerHierarchy();
+        this._calculator = new Geometry();
         this._node       = new D3DeploymentNode();
         this._port       = new D3DeploymentPort();
         this._edge       = new D3DeploymentEdge();
@@ -157,9 +157,9 @@ export default class D3Deployment {
             return node.normalize(d);
         });
 
-        let drawer = this._drawer;
+        const h = new Hierarchy();
         for (let data of tmp)
-            drawer.fitting(data);
+            h.fitting(data);
 
         let pool = this.data2pool(tmp, this._nodes);
 
@@ -209,13 +209,13 @@ export default class D3Deployment {
     }
     getPortLineFrom (node) {
         return {
-            x: Math.floor(node.size.w / 2) + node.position.x ,
-            y: Math.floor(node.size.h / 2) + node.position.y
+            x: Math.floor(node._size.w / 2) + node._position.x ,
+            y: Math.floor(node._size.h / 2) + node._position.y
         };
     }
     getPortLineToPoint (node) {
-        let w = node.size.w;
-        let h = node.size.h;
+        let w = node._size.w;
+        let h = node._size.h;
 
         return {
             x: 0,
@@ -276,6 +276,7 @@ export default class D3Deployment {
     }
     fittingPort (port) {
         let port_pos;
+
         if (port._type==='FROM')
             port_pos = port.edge._core.from.position;
         else
