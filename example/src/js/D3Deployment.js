@@ -1,13 +1,13 @@
-import D3Svg from '@yanqirenshi/d3.svg';
-
-import {Hierarchy, Geometry} from '@yanqirenshi/assh0le';
+import Asshole, {Hierarchy, Geometry} from '@yanqirenshi/assh0le';
 
 import D3DeploymentNode from './D3DeploymentNode.js';
 import D3DeploymentEdge from './D3DeploymentEdge.js';
 import D3DeploymentPort from './D3DeploymentPort.js';
 
-export default class D3Deployment {
+export default class D3Deployment extends Asshole {
     constructor () {
+        super();
+
         this._nodes = { list: [], ht: {}, tree: [] };
         this._edges = { list: [], ht: {} };
         this._ports = { list: [], ht: {} };
@@ -24,115 +24,12 @@ export default class D3Deployment {
             EDGE: this._edge,
             PORT: this._port,
         };
-
-        this.selector = null;
-        this.w = 0;
-        this.h = 0;
-        this.look = { at: { x:0, y:0 }, };
-        this.scale = 1;
-
-        this._d3svg = null;
-        this._layerForeground = null;
-        this._layerBackground = null;
     }
-    init (params) {
-        // D3SVG
-        this.selector = params.svg.selector;
-        this.w = params.svg.w || 0;
-        this.h = params.svg.h || 0;
-        this.look = params.svg.look || { at: { x:0, y:0 }, };
-        this.scale = params.svg.scale || 1;
-
-        const svg = this.getSvgElement();
-
-        this._node.addFilterShadow(svg);
-
-        var marker = svg
-            .append("defs") // TODO: さがせよ
-            .append("marker")
-            .attr('id', "edge-arrow")
-            .attr('refX', 15)
-            .attr('refY', 5)
-            .attr('markerWidth', 10)
-            .attr('markerHeight', 10)
-            .attr('orient', "auto");
-
-        // 矢印の形をpathで定義します。
-        marker.append("path")
-            .attr('d', "M 0,0 V 10 L10,5 Z")
-            .attr('fill', "#333");
-
-        return this;
-    }
-    /* ******** */
-    /*  SVG     */
-    /* ******** */
-    makeSvg () {
-        let d3svg = new D3Svg();
-
-        d3svg.init({
-            selector: this.selector,
-            w:     this.w,
-            h:     this.h,
-            look:  this.look,
-            scale: this.scale,
-        });
-
-        return d3svg;
-    }
-    getSvg () {
-        if (this._d3svg)
-            return this._d3svg;
-
-        this._d3svg = this.makeSvg();
-
-        this.makeLayers();
-
-        return this._d3svg;
-    }
-    getSvgElement () {
-        return this.getSvg().d3Element();
-    }
-    focus () {
-        this.getSvg().focus();
-    }
-    /* ******** */
-    /*  Layers  */
-    /* ******** */
-    makeLayers () {
-        const layers = [
-            { id: 1, name: 'background' },
-            { id: 2, name: 'foreground' },
-        ];
-
-        this.getSvgElement()
-            .selectAll('g.layer')
-            .data(layers, (d) => { return d.id; })
-            .enter()
-            .append('g')
-            .attr('class', (d) => {
-                return 'layer ' + d.name;
-            });
-    }
-    getLayerForeground () {
-        if (this._layerForeground)
-            return this._layerForeground;
-
-        let svg = this.getSvgElement();
-
-        this._layerForeground = svg.select('g.layer.foreground');
-
-        return this._layerForeground;
-    }
-    getLayerBackground () {
-        if (this._layerBackground)
-            return this._layerBackground;
-
-        let svg = this.getSvgElement();
-
-        this._layerBackground = svg.select('g.layer.background');
-
-        return this._layerBackground;
+    /* **************************** */
+    /*  Overwrite Asshole function  */
+    /* **************************** */
+    makeSvgAfter () {
+        this._node.addFilterShadow(this.getSvgElement());
     }
     /* ******** */
     /*  DATA  */
