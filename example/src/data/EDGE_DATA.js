@@ -26,7 +26,8 @@ const EDGE_DATA = [
         },
         stroke: {
             color: '#00f',
-            width: 1.5,
+            width: 10,
+            marker: { start: false, end: false }
         },
     },
 ];
