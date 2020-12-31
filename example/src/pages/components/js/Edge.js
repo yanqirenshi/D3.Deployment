@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 
-export default class D3DeploymentEdge {
+export default class Edge {
     dataTemplate () {
         return {
             from: {
@@ -71,13 +71,11 @@ export default class D3DeploymentEdge {
             },
             {
                 "x": data.to.position.x,
-                "y": data.to.position.y
-            },
-            {
-                stroke: data._core.stroke,
+                "y": data.to.position.y,
+                stroke: data.stroke,
             },
         ];
-        console.log(data._core);
+
         let lineFunction = d3.line()
             .x(function(d) { return d.x; })
             .y(function(d) { return d.y; });
@@ -88,20 +86,20 @@ export default class D3DeploymentEdge {
             .attr("fill", "none")
             .attr("d", lineFunction)
             .attr('marker-end', d => {
-                if (!d[2].stroke.marker ||  d[2].stroke.marker.end)
+                if (!d[1].stroke.marker ||  d[1].stroke.marker.end)
                     return "url(#edge-arrow)";
 
                 return null;
             })
             .style('stroke-linecap', 'round')
             .style('fill', (d) => {
-                return d[2].stroke.color;
+                return d[1].stroke.color;
             })
             .style("stroke", (d) => {
-                return d[2].stroke.color;
+                return d[1].stroke.color;
             })
             .style("stroke-width", (d) => {
-                return d[2].stroke.width;
+                return d[1].stroke.width;
             });
 
 

@@ -1,6 +1,8 @@
-import {Background,Position,Rectangle,Stroke,Label,Padding} from '@yanqirenshi/assh0le';
+import {
+    Background,Position,Rectangle,Stroke,Label,Padding
+} from '@yanqirenshi/assh0le';
 
-export default class D3DeploymentNode {
+export default class Node {
     constructor() {
         this.label = new Label();
         this.rectangle = new Rectangle();

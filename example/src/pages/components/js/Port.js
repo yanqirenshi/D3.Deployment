@@ -1,4 +1,4 @@
-export default class D3DeploymentPort {
+export default class Port {
     dataTemplate () {
         return {
             node:   null,

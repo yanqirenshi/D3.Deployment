@@ -9,10 +9,7 @@ const EDGE_DATA = [
             id: 2,
             position: 90,
         },
-        stroke: {
-            color: '#f00',
-            width: 1.5,
-        },
+        port: 45,
     },
     {
         id: 101,
@@ -23,11 +20,6 @@ const EDGE_DATA = [
         to: {
             id: 4,
             position: 90,
-        },
-        stroke: {
-            color: '#00f',
-            width: 10,
-            marker: { start: false, end: false }
         },
     },
 ];

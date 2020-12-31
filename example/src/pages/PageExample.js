@@ -1,41 +1,53 @@
-import React from 'react';
+import React, { useState } from 'react';
+import {Button} from 'react-bulma-components';
 
-// import ExampleData from '../js/ExampleData.js';
+import D3Deployment, {Camera} from './components/D3Deployment.js';
 
-import DeploymentGraph from './DeploymentGraph';
-// import Explanation  from './Explanation';
+import Head from './Head.js';
+import style from './Style.js';
+
+import NODE_DATA from '../data/NODE_DATA.js';
+import EDGE_DATA from '../data/EDGE_DATA.js';
 
 function PageExample () {
-    const style = {
-        root: {
-            background: '#ffffff',
-            width: '100%',
-            marginLeft: 'auto',
-            marginRight: 'auto',
+    const [camera] = useState(new Camera({
+        look: {
+            at: {x:400, y:100},
+            scale: 1,
         },
-        graph_area: {
-            height: 666,
-            marginTop: '22px',
-            marginBottom: '22px',
-        },
-        h1: {
-            fontSize: '33px',
-            fontWeight: 'bold',
-            marginTop: '11px',
-        },
+    }));
+
+    const graph_data = {
+        nodes: NODE_DATA,
+        edges: EDGE_DATA,
+    };
+
+    const click = (e) => {
+        const action = e.target.getAttribute('action');
+        if (action==='up')         camera.move({y: -100}).focus();
+        else if (action==='down')  camera.move({y:  100}).focus();
+        else if (action==='left')  camera.move({x: -100}).focus();
+        else if (action==='right') camera.move({x:  100}).focus();
+        else if (action==='z+')    camera.zoom(+1).focus();
+        else if (action==='z-')    camera.zoom(-1).focus();
     };
 
     return (
         <div style={style.root}>
-
-          <div>
-            <h1 style={style.h1}>Example of React</h1>
-          </div>
+          <Head />
 
           <div style={style.graph_area}>
-            <DeploymentGraph />
+            <D3Deployment source={graph_data} camera={camera} />
           </div>
 
+          <div>
+            <Button action="up"    onClick={click}>Up</Button>
+            <Button action="down"  onClick={click}>Down</Button>
+            <Button action="left"  onClick={click}>Left</Button>
+            <Button action="right" onClick={click}>Right</Button>
+            <Button action="z+"    onClick={click}>Zoom(+)</Button>
+            <Button action="z-"    onClick={click}>Zoom(-)</Button>
+          </div>
         </div>
     );
 }

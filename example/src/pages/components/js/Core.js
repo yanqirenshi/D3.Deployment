@@ -1,12 +1,12 @@
 import Asshole, {Hierarchy, Geometry} from '@yanqirenshi/assh0le';
 
-import D3DeploymentNode from './D3DeploymentNode.js';
-import D3DeploymentEdge from './D3DeploymentEdge.js';
-import D3DeploymentPort from './D3DeploymentPort.js';
+import Node from './Node.js';
+import Edge from './Edge.js';
+import Port from './Port.js';
 
-export default class D3Deployment extends Asshole {
-    constructor () {
-        super();
+export default class Core extends Asshole {
+    constructor (params) {
+        super(params);
 
         this._nodes = { list: [], ht: {}, tree: [] };
         this._edges = { list: [], ht: {} };
@@ -15,9 +15,9 @@ export default class D3Deployment extends Asshole {
         this.id_counter = 1;
 
         this._calculator = new Geometry();
-        this._node       = new D3DeploymentNode();
-        this._port       = new D3DeploymentPort();
-        this._edge       = new D3DeploymentEdge();
+        this._node       = new Node();
+        this._port       = new Port();
+        this._edge       = new Edge();
 
         this._painter = {
             NODE: this._node,
@@ -29,7 +29,7 @@ export default class D3Deployment extends Asshole {
     /*  Overwrite Asshole function  */
     /* **************************** */
     makeSvgAfter () {
-        this._node.addFilterShadow(this.getSvgElement());
+        this._node.addFilterShadow(this.svgElement());
     }
     /* ******** */
     /*  DATA  */
@@ -104,13 +104,13 @@ export default class D3Deployment extends Asshole {
             edge.to.port   = this.makePort('TO',   edge.to.node,   edge);
         }
     }
-    getPortLineFrom (node) {
+    portLineFrom (node) {
         return {
             x: Math.floor(node._size.w / 2) + node._position.x ,
             y: Math.floor(node._size.h / 2) + node._position.y
         };
     }
-    getPortLineToPoint (node) {
+    portLineToPoint (node) {
         let w = node._size.w;
         let h = node._size.h;
 
@@ -119,8 +119,8 @@ export default class D3Deployment extends Asshole {
             y: Math.floor(Math.sqrt((w * w) + (h * h))),
         };
     }
-    getPortLineTo (degree, node) {
-        let point = this.getPortLineToPoint(node);
+    portLineTo (degree, node) {
+        let point = this.portLineToPoint(node);
         let x = point.x;
         let y = point.y;
 
@@ -149,8 +149,8 @@ export default class D3Deployment extends Asshole {
      * @param {object} node port の Node。 算出した Line の位置を補正するための Node
      */
     makePortLine (degree, node) {
-        let from = this.getPortLineFrom(node);
-        let to   = this.getPortLineTo(degree, node);
+        let from = this.portLineFrom(node);
+        let to   = this.portLineTo(degree, node);
 
         return {
             from: {
@@ -299,7 +299,7 @@ export default class D3Deployment extends Asshole {
         painter.draw(place, element);
     }
     draw() {
-        let place = this.getLayerForeground();
+        let place = this.layerForeground();
 
         let elements = this.getDrawElements();
 
