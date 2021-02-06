@@ -12,7 +12,7 @@ function App() {
     });
     const [camera] = useState(new Camera({
         look: {
-            at: {x:0, y:0},
+            at: {x:350, y:150},
             scale: 1,
         },
     }));
