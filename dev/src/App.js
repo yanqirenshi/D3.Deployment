@@ -6,7 +6,7 @@ import NODE_DATA from './data/NODE_DATA.js';
 import EDGE_DATA from './data/EDGE_DATA.js';
 
 function App() {
-    const [graph_data, setGraphData] = useState({
+    const [graph_data] = useState({
         nodes: NODE_DATA,
         edges: EDGE_DATA,
     });

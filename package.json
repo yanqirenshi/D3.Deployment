@@ -1,0 +1,41 @@
+{
+    "name": "@yanqirenshi/d3.deployment",
+    "version": "0.1.0",
+    "description": "See [Documents](https://yanqirenshi.github.io/D3.Deployment/)",
+    "main": "dist/index.js",
+    "directories": {
+        "doc": "docs",
+        "example": "example"
+    },
+    "peerDependencies": {
+        "react": "^17.0.1",
+        "react-dom": "^17.0.1"
+    },
+    "dependencies": {
+        "@yanqirenshi/assh0le": "^0.1.0"
+    },
+    "devDependencies": {
+        "@babel/cli": "^7.12.17",
+        "@babel/core": "^7.12.17",
+        "@babel/preset-env": "^7.12.17",
+        "@babel/preset-react": "^7.12.13",
+        "@yanqirenshi/d3.deployment": "file:react",
+        "babel-loader": "^8.2.2",
+        "react-dom": "^17.0.1"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "transpile": "babel src -d dist --copy-files",
+        "prepublishOnly": "npm run transpile"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/yanqirenshi/D3.Deployment.git"
+    },
+    "author": "yanqirenshi@gmail.com",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/yanqirenshi/D3.Deployment/issues"
+    },
+    "homepage": "https://github.com/yanqirenshi/D3.Deployment#readme"
+}
