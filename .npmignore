@@ -1,8 +1,9 @@
 src
 dev
 docs
+examples
+node_modules
 react
 riot
-examples
 .babelrc
 .gitignore
