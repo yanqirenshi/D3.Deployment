@@ -1,16 +1,12 @@
-import Asshole, {Hierarchy, Geometry} from '@yanqirenshi/assh0le';
+import {Colon, Hierarchy, Geometry} from '@yanqirenshi/assh0le';
 
 import Node from './Node.js';
 import Edge from './Edge.js';
 import Port from './Port.js';
 
-export default class Core extends Asshole {
+export default class Rectum extends Colon {
     constructor (params) {
         super(params);
-
-        this._nodes = { list: [], ht: {}, tree: [] };
-        this._edges = { list: [], ht: {} };
-        this._ports = { list: [], ht: {} };
 
         this.id_counter = 1;
 
@@ -25,11 +21,17 @@ export default class Core extends Asshole {
             PORT: this._port,
         };
     }
+    /* ******** */
+    /*  Getter  */
+    /* ******** */
+    node () { return this._node; }
+    port () { return this._port; }
+    edge () { return this._edge; }
     /* **************************** */
     /*  Overwrite Asshole function  */
     /* **************************** */
-    makeSvgAfter () {
-        this._node.addFilterShadow(this.getSvgElement());
+    selector_setAfter () {
+        this.node().addFilterShadow(this.d3Element());
     }
     /* ******** */
     /*  DATA  */
@@ -47,8 +49,8 @@ export default class Core extends Asshole {
 
         return pool;
     }
-    importNodes (nodes) {
-        let node = this._node;
+    makeNodes (nodes) {
+        let node = this.node();
 
         let tmp = (nodes || []).map((d) => {
             return node.normalize(d);
@@ -58,14 +60,14 @@ export default class Core extends Asshole {
         for (let data of tmp)
             h.fitting(data);
 
-        let pool = this.data2pool(tmp, this._nodes);
+        let pool = this.data2pool(tmp, { list: [], ht: {}, tree: [] });
 
         pool.tree = tmp;
 
         return pool;
     }
-    importEdges (edges) {
-        let edge = this._edge;
+    makeEdges (edges) {
+        let edge = this.edge();
 
         let id = 1;
 
@@ -74,10 +76,10 @@ export default class Core extends Asshole {
             return edge.normalize(d, id++);
         });
 
-        return this.data2pool(tmp, this._edges);
+        return this.data2pool(tmp, { list: [], ht: {} });
     }
-    makePort (type, node, edge) {
-        let port = this._port.normalize({
+    makePort (type, node, edge, ports) {
+        let port = this.port().normalize({
             node:   node,
             edge:   edge,
             _id:    this.id_counter++,
@@ -85,13 +87,13 @@ export default class Core extends Asshole {
             _type:  type,
         });
 
-        this._ports.list.push(port);
-        this._ports.ht[port._id] = port;
+        ports.list.push(port);
+        ports.ht[port._id] = port;
 
         return port;
     }
-    makePorts (edges) {
-        let nodes = this._nodes.ht;
+    makePorts (nodes, edges) {
+        let ports = { list: [], ht: {} };
 
         for (let edge of edges){
             let node_from = nodes[edge.from.id];
@@ -100,9 +102,11 @@ export default class Core extends Asshole {
             edge.from.node = node_from;
             edge.to.node   = node_to;
 
-            edge.from.port = this.makePort('FROM', edge.from.node, edge);
-            edge.to.port   = this.makePort('TO',   edge.to.node,   edge);
+            edge.from.port = this.makePort('FROM', edge.from.node, edge, ports);
+            edge.to.port   = this.makePort('TO',   edge.to.node,   edge, ports);
         }
+
+        return ports;
     }
     getPortLineFrom (node) {
         return {
@@ -166,7 +170,7 @@ export default class Core extends Asshole {
     positioningPort (port, port_pos_degree, node) {
         let calc = this._calculator;
 
-        let lines_entity = this._node.getFourSides(node);
+        let lines_entity = this.node().getFourSides(node);
         let line_port    = this.makePortLine(port_pos_degree, node);
 
         return calc.getCrossPoint(lines_entity, line_port) || {x:0, y:0};
@@ -204,32 +208,25 @@ export default class Core extends Asshole {
      */
     data (data) {
         if (arguments.length===0)
-            return this._nodes.list;
+            return super.data();
 
-        this.importNodes(data.nodes);
-        this.importEdges(data.edges);
-
-        this.makePorts(this._edges.list);
+        const nodes = this.makeNodes(data.nodes);
+        const edges = this.makeEdges(data.edges);
+        const ports = this.makePorts(nodes.ht, edges.list);
 
         // fitting ports
-        for (let port of this._ports.list)
+        for (let port of ports.list)
             this.fittingPort(port);
 
         // fitting edges
-        for (let edge of this._edges.list)
+        for (let edge of edges.list)
             this.fittingEdge(edge);
 
-        this.draw();
-
-        return this;
-    }
-    elementDataList () {
-
-        return [].concat(
-            this._nodes.list,
-            this._edges.list,
-            this._ports.list
-        );
+        return super.data({
+            nodes: nodes,
+            edges: edges,
+            ports: ports,
+        });
     }
     ///// ////////////////////////////////////////////////////////////////
     /////   Flatten
@@ -244,29 +241,32 @@ export default class Core extends Asshole {
 
         return out.concat(children);
     }
-    flatten () {
-        let data = this._nodes.tree;
+    flatten (data) {
+        let nodes = data.nodes.tree;
 
-        if (!data)
+        if (!nodes)
             return [];
 
         let lev = 10;
-        return data.reduce((acc, val) => {
+        return nodes.reduce((acc, val) => {
             val._level = lev;
             return acc.concat(this.flattenCore(val, lev * 10));
         }, []);
     }
-    getDrawElements () {
-        let out = this.flatten();
+    getDrawElements (data) {
+        let out = this.flatten(data);
+
+        const ports = data.ports.list;
+        const edges = data.edges.list;
 
         // port に level を設定
-        for (let port of this._ports.list) {
+        for (let port of ports) {
             port._level = port.node._level;
             out.push(port);
         }
 
         // edge に level を設定
-        for (let edge of this._edges.list) {
+        for (let edge of edges) {
             let lev_from = edge.from.port._level;
             let lev_to   = edge.to.port._level;
             if (lev_from > lev_to)
@@ -299,9 +299,11 @@ export default class Core extends Asshole {
         painter.draw(place, element);
     }
     draw() {
-        let place = this.getLayerForeground();
+        const place = this.layer('foreground');
 
-        let elements = this.getDrawElements();
+        const data = this.data();
+
+        const elements = this.getDrawElements(data);
 
         for (let element of elements)
             this.drawElement(place, element);

@@ -83,15 +83,13 @@ var Edge = /*#__PURE__*/function () {
   }, {
     key: "draw",
     value: function draw(place, data) {
-      console.log(data);
       var lineData = [{
         "x": data.from.position.x,
-        "y": data.from.position.y
+        "y": data.from.position.y,
+        stroke: data.stroke
       }, {
         "x": data.to.position.x,
         "y": data.to.position.y
-      }, {
-        stroke: data.stroke
       }];
       var lineFunction = d3.line().x(function (d) {
         return d.x;
@@ -99,14 +97,14 @@ var Edge = /*#__PURE__*/function () {
         return d.y;
       });
       var path = place.append("path").datum(lineData).attr("fill", "none").attr("d", lineFunction).attr('marker-end', function (d) {
-        if (!d[2].stroke.marker || d[2].stroke.marker.end) return "url(#edge-arrow)";
+        if (!d[0].stroke.marker || d[0].stroke.marker.end) return "url(#edge-arrow)";
         return null;
       }).style('stroke-linecap', 'round').style('fill', function (d) {
-        return d[2].stroke.color;
+        return d[0].stroke.color;
       }).style("stroke", function (d) {
-        return d[2].stroke.color;
+        return d[0].stroke.color;
       }).style("stroke-width", function (d) {
-        return d[2].stroke.width;
+        return d[0].stroke.width;
       });
       var len = path.node().getTotalLength();
       var margin = 12;

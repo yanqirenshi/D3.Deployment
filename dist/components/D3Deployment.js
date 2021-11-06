@@ -6,20 +6,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = D3Deployment;
-Object.defineProperty(exports, "Camera", {
-  enumerable: true,
-  get: function get() {
-    return _assh0le.Camera;
-  }
-});
 
 var _react = _interopRequireWildcard(require("react"));
 
-var _reactMeasure = _interopRequireDefault(require("react-measure"));
-
-var _assh0le = require("@yanqirenshi/assh0le");
-
-var _Core = _interopRequireDefault(require("../js/Core.js"));
+var _assh0le = _interopRequireDefault(require("@yanqirenshi/assh0le"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -27,56 +17,10 @@ function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return 
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-var svgid = "D3Deployment-".concat(Math.floor(Math.random() * Math.floor(88888888)));
-
 function D3Deployment(props) {
-  var _useState = (0, _react.useState)(new _Core["default"]({
-    selector: '#' + svgid,
-    camera: props.camera
-  })),
-      _useState2 = _slicedToArray(_useState, 1),
-      core = _useState2[0];
-
-  (0, _react.useEffect)(function () {
-    return core.focus();
-  }, [core]);
-  (0, _react.useEffect)(function () {
-    return core.data(props.source);
-  });
-  return /*#__PURE__*/_react["default"].createElement(_reactMeasure["default"], {
-    bounds: true,
-    onResize: function onResize(cr) {
-      return core.bounds(_objectSpread({}, cr.bounds));
-    }
-  }, function (_ref) {
-    var measureRef = _ref.measureRef;
-    return /*#__PURE__*/_react["default"].createElement("div", {
-      ref: measureRef,
-      className: "grid-inner",
-      style: {
-        width: '100%',
-        height: '100%'
-      }
-    }, /*#__PURE__*/_react["default"].createElement("svg", {
-      id: svgid
-    }));
+  var rectum = props.rectum;
+  return /*#__PURE__*/_react["default"].createElement(_assh0le["default"], {
+    id: "d3-deployment-graph",
+    rectum: rectum
   });
 }

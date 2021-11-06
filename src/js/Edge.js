@@ -64,24 +64,20 @@ export default class Edge {
     /////   Draw
     ///// ////////////////////////////////////////////////////////////////
     draw (place, data) {
-        console.log(data);
         let lineData = [
             {
                 "x": data.from.position.x,
                 "y": data.from.position.y,
+                stroke: data.stroke,
             },
             {
                 "x": data.to.position.x,
                 "y": data.to.position.y
             },
-            {
-                stroke: data.stroke,
-            },
         ];
-
         let lineFunction = d3.line()
-            .x(function(d) { return d.x; })
-            .y(function(d) { return d.y; });
+            .x((d) => d.x)
+            .y((d) => d.y);
 
         let path = place
             .append("path")
@@ -89,20 +85,20 @@ export default class Edge {
             .attr("fill", "none")
             .attr("d", lineFunction)
             .attr('marker-end', d => {
-                if (!d[2].stroke.marker ||  d[2].stroke.marker.end)
+                if (!d[0].stroke.marker ||  d[0].stroke.marker.end)
                     return "url(#edge-arrow)";
 
                 return null;
             })
             .style('stroke-linecap', 'round')
             .style('fill', (d) => {
-                return d[2].stroke.color;
+                return d[0].stroke.color;
             })
             .style("stroke", (d) => {
-                return d[2].stroke.color;
+                return d[0].stroke.color;
             })
             .style("stroke-width", (d) => {
-                return d[2].stroke.width;
+                return d[0].stroke.width;
             });
 
 

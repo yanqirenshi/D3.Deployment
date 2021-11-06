@@ -254,10 +254,10 @@ export default class Rectum extends Colon {
         }, []);
     }
     getDrawElements (data) {
+        let out = this.flatten(data);
+
         const ports = data.ports.list;
         const edges = data.edges.list;
-
-        let out = this.flatten(data);
 
         // port に level を設定
         for (let port of ports) {
@@ -301,7 +301,7 @@ export default class Rectum extends Colon {
     draw() {
         const place = this.layer('foreground');
 
-        const data= this.data();
+        const data = this.data();
 
         const elements = this.getDrawElements(data);
 
