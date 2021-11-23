@@ -5,7 +5,13 @@ import D3Deployment, { Rectum } from './lib/index.js';
 import NODE_DATA from './data/NODE_DATA.js';
 import EDGE_DATA from './data/EDGE_DATA.js';
 
-const rectum = new Rectum();
+const rectum = new Rectum({
+    transform: {
+        k: 0.5,
+        x: 100.0,
+        y: 200.0,
+    },
+});
 
 const style = {
     width: '100vw',
