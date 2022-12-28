@@ -1,6 +1,6 @@
 {
     "name": "@yanqirenshi/d3.deployment",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "description": "See [Documents](https://yanqirenshi.github.io/D3.Deployment/)",
     "main": "dist/index.js",
     "directories": {
@@ -12,7 +12,7 @@
         "react-dom": "^17.0.1"
     },
     "dependencies": {
-        "@yanqirenshi/assh0le": "^0.2.7"
+        "@yanqirenshi/assh0le": "^0.2.12"
     },
     "devDependencies": {
         "@babel/cli": "^7.12.17",
