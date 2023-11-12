@@ -1,47 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
-import D3Deployment, { Rectum } from './lib/index.js';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
 
-import NODE_DATA from './data/NODE_DATA.js';
-import EDGE_DATA from './data/EDGE_DATA.js';
+import Graph from './Graph.js';
+import Tabs from './Tabs.js';
 
-const rectum = new Rectum({
-    transform: {
-        k: 0.5,
-        x: 100.0,
-        y: 200.0,
-    },
-});
+import Overview from './Overview.js';
+import Models from './Models.js';
+import Views from './Views.js';
+import Classes from './Classes.js';
 
 const style = {
     width: '100vw',
     height: '100vh',
     display: 'flex',
-    justifyContent: 'center',
+    flexDirection: 'column',
     alignItems: 'center',
-    graph_area: {
-        width:  800 + (22*2),
-        height: 600 + (22*2),
-        background: '#eee',
-        padding: 22,
-        borderRadius: 5,
-    },
+    pt: 3,
 };
 
 function App() {
-    const [graph_data] = useState({
-        nodes: NODE_DATA,
-        edges: EDGE_DATA,
+    const [tabs, setTabs] = React.useState({
+        selected: 'overview',
+        list: [
+            { code: 'overview', label: 'Overview' },
+            { code: 'classes',  label: 'Classes' },
+            { code: 'models',   label: 'Models' },
+            { code: 'views',    label: 'Views' },
+        ],
     });
 
-    useEffect(()=>rectum.data(graph_data), [graph_data]);
+    const onChange = (new_tabs)=> setTabs(new_tabs);
 
     return (
-        <div style={style}>
-          <div style={style.graph_area}>
-            <D3Deployment rectum={rectum} />
-          </div>
-        </div>
+        <Box sx={style}>
+          <Container maxWidth="md" sx={{pb:22}}>
+            <Box>
+              <Graph/>
+            </Box>
+
+            <Box sx={{mt:2}}>
+              <Tabs tabs={tabs} onChange={onChange}/>
+            </Box>
+
+            {'overview'===tabs.selected && <Overview/>}
+            {'classes'===tabs.selected && <Classes/>}
+            {'models'===tabs.selected && <Models/>}
+            {'views'===tabs.selected && <Views/>}
+          </Container>
+        </Box>
     );
 }
 
